@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Games — Abeeha Fatima</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1419;
+      --bg-elevated: #1a222c;
+      --text: #e8eef4;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.15);
+      --border: rgba(148, 163, 184, 0.12);
+      --radius: 14px;
+      --nav-h: 72px;
+      --found: rgba(56, 189, 248, 0.35);
+      --select: rgba(129, 140, 248, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(1.25rem, 4vw, 3rem);
+      background: rgba(15, 20, 25, 0.75);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      list-style: none;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .nav-links a.primary {
+      color: var(--bg);
+      background: linear-gradient(135deg, var(--accent), #818cf8);
+      box-shadow: 0 4px 20px var(--accent-soft);
+      pointer-events: none;
+    }
+
+    .games-page {
+      padding: clamp(1.25rem, 4vw, 2rem);
+      min-height: calc(100vh - var(--nav-h));
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg-elevated) 40%, var(--bg) 100%);
+    }
+
+    .games-inner {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .games-intro {
+      margin-bottom: 1.5rem;
+    }
+
+    .games-intro .hint {
+      margin-bottom: 0;
+      max-width: 40rem;
+    }
+
+    .game-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .game-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.35rem;
+      padding: 1.15rem 1.25rem;
+      text-align: left;
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 2px);
+      background: rgba(26, 34, 44, 0.65);
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+
+    .game-card:hover {
+      background: rgba(26, 34, 44, 0.95);
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+
+    .game-card[aria-selected="true"] {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-soft), 0 12px 40px rgba(0, 0, 0, 0.25);
+      background: rgba(56, 189, 248, 0.08);
+    }
+
+    .game-card-icon {
+      font-size: 1.75rem;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .game-card-title {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .game-card-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .game-panel {
+      margin-top: 0.5rem;
+    }
+
+    .game-panel.is-hidden {
+      display: none;
+    }
+
+    .panel-head {
+      margin-bottom: 1.25rem;
+    }
+
+    .panel-head h2 {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(1.25rem, 2.5vw, 1.6rem);
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .panel-head .hint {
+      margin-bottom: 0;
+    }
+
+    .brain-root {
+      padding: 1.25rem 1.35rem;
+      background: rgba(26, 34, 44, 0.9);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+    }
+
+    .brain-progress {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .brain-q {
+      font-size: 1.1rem;
+      font-weight: 500;
+      line-height: 1.55;
+      margin-bottom: 1.15rem;
+      color: var(--text);
+    }
+
+    .brain-choices {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .brain-choices button {
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .brain-choices button:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .brain-choices button:disabled {
+      cursor: default;
+      opacity: 0.85;
+    }
+
+    .brain-choices button.wrong-pick {
+      border-color: rgba(248, 113, 113, 0.5);
+      background: rgba(248, 113, 113, 0.12);
+    }
+
+    .brain-choices button.correct-pick {
+      border-color: rgba(52, 211, 153, 0.6);
+      background: rgba(52, 211, 153, 0.15);
+    }
+
+    .brain-feedback {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      min-height: 1.5em;
+      margin-bottom: 1rem;
+    }
+
+    .brain-feedback.ok {
+      color: #34d399;
+      font-weight: 600;
+    }
+
+    .brain-feedback.bad {
+      color: #f87171;
+    }
+
+    .brain-summary {
+      margin-top: 1rem;
+      padding: 1rem 1.15rem;
+      border-radius: var(--radius);
+      font-size: 1.05rem;
+      line-height: 1.55;
+    }
+
+    .brain-summary.pass {
+      background: rgba(52, 211, 153, 0.12);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      color: #6ee7b7;
+    }
+
+    .brain-summary.fail {
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.35);
+      color: #fca5a5;
+    }
+
+    .brain-summary strong {
+      display: block;
+      font-size: 1.15rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .brain-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      align-items: center;
+    }
+
+    .brain-actions button.secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border: 1px solid var(--border);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.5rem 1.1rem;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .brain-actions button.secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+    }
+
+    .games-page h1 {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .hint {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.25rem;
+      max-width: 36rem;
+    }
+
+    .game-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+
+    .word-bank {
+      flex: 1;
+      min-width: 200px;
+      padding: 1rem 1.25rem;
+      background: rgba(26, 34, 44, 0.9);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .word-bank h2 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .word-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      list-style: none;
+    }
+
+    .word-list li {
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      transition: opacity 0.2s, color 0.2s;
+    }
+
+    .word-list li.found {
+      color: var(--accent);
+      text-decoration: line-through;
+      opacity: 0.75;
+    }
+
+    .grid-wrap {
+      flex: 2;
+      min-width: 260px;
+      padding: 1rem;
+      background: rgba(26, 34, 44, 0.9);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      box-shadow:
+        0 24px 80px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      overflow: auto;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .grid {
+      display: grid;
+      gap: 2px;
+      margin: 0 auto;
+      width: fit-content;
+      background: var(--border);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .cell {
+      width: clamp(26px, 7vw, 34px);
+      height: clamp(26px, 7vw, 34px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: clamp(0.75rem, 3.5vw, 0.95rem);
+      background: var(--bg-elevated);
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .cell:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .cell.anchor {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    .cell.preview {
+      background: var(--select);
+    }
+
+    .cell.solved {
+      background: var(--found);
+      color: var(--text);
+    }
+
+    .toolbar {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .toolbar button {
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.55rem 1.15rem;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), #818cf8);
+      color: var(--bg);
+      transition: filter 0.15s;
+    }
+
+    .toolbar button:hover {
+      filter: brightness(1.08);
+    }
+
+    .toolbar .theme-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .toolbar select {
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.5rem 2rem 0.5rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text);
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.65rem center;
+    }
+
+    .status {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .status.win {
+      color: var(--accent);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="index.html">Abeeha <span>Fatima</span></a>
+    <nav aria-label="Main">
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a class="primary" href="games.html" aria-current="page">Games</a></li>
+        <li><a href="calculate.html">Calculator</a></li>
+        <li><a href="paint.html">Paint</a></li>
+        <li><a href="about.html">About Me</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="games-page">
+    <div class="games-inner">
+      <div class="games-intro">
+        <p class="section-label">Games</p>
+        <h1>Play &amp; think</h1>
+        <p class="hint">
+          Pick a mode below — hunt for words on a grid, or try lateral-thinking brain teasers where the obvious answer is rarely the right one.
+        </p>
+      </div>
+
+      <div class="game-cards" role="tablist" aria-label="Choose a game">
+        <button
+          type="button"
+          class="game-card"
+          role="tab"
+          id="tab-wordsearch"
+          aria-selected="true"
+          aria-controls="panel-wordsearch"
+        >
+          <span class="game-card-icon" aria-hidden="true">🔤</span>
+          <span class="game-card-title">Word search</span>
+          <span class="game-card-desc">Themed letter grids — words hide in every direction, including backward.</span>
+        </button>
+        <button
+          type="button"
+          class="game-card"
+          role="tab"
+          id="tab-brain"
+          aria-selected="false"
+          aria-controls="panel-brain"
+        >
+          <span class="game-card-icon" aria-hidden="true">🧠</span>
+          <span class="game-card-title">Brain test</span>
+          <span class="game-card-desc">Tricky riddles and math traps. Read every word twice before you tap.</span>
+        </button>
+      </div>
+
+      <section
+        id="panel-wordsearch"
+        class="game-panel"
+        role="tabpanel"
+        aria-labelledby="tab-wordsearch"
+      >
+        <div class="panel-head">
+          <h2>Word search</h2>
+          <p class="hint">
+            Tap a letter, then tap the other end of the word. Use <strong>Theme</strong> for different lists or <strong>Mix all</strong>. <strong>New puzzle</strong> shuffles the same theme.
+          </p>
+        </div>
+
+        <div class="game-row">
+          <div class="word-bank">
+            <h2>Find these words</h2>
+            <ul class="word-list" id="word-list" aria-live="polite"></ul>
+          </div>
+          <div class="grid-wrap">
+            <div class="grid" id="grid" role="grid" aria-label="Word search letters"></div>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <label class="theme-label" for="pack-select">Theme</label>
+          <select id="pack-select" aria-label="Word search theme">
+            <option value="all">Mix all themes</option>
+            <option value="classic">Classic puzzle</option>
+            <option value="colors">Colors</option>
+            <option value="nature">Nature</option>
+            <option value="animals">Animals</option>
+            <option value="space">Space</option>
+            <option value="food">Food</option>
+            <option value="sports">Sports</option>
+            <option value="tech">Tech &amp; code</option>
+            <option value="games">Games &amp; play</option>
+            <option value="music">Music</option>
+          </select>
+          <button type="button" id="btn-new">New puzzle</button>
+          <p class="status" id="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section
+        id="panel-brain"
+        class="game-panel is-hidden"
+        role="tabpanel"
+        aria-labelledby="tab-brain"
+        hidden
+      >
+        <div class="panel-head">
+          <h2>Brain test — tricky puzzles</h2>
+          <p class="hint">
+            Choose the best answer — there are 10 puzzles. After the last one you’ll see your score:
+            <strong>50% or more is a pass</strong>; below 50% is a fail.
+          </p>
+        </div>
+        <div class="brain-root">
+          <p class="brain-progress" id="brain-progress"></p>
+          <p class="brain-q" id="brain-q"></p>
+          <div class="brain-choices" id="brain-choices"></div>
+          <p class="brain-feedback" id="brain-feedback" aria-live="polite"></p>
+          <div class="brain-summary" id="brain-summary" hidden aria-live="polite"></div>
+          <div class="brain-actions">
+            <button type="button" class="secondary" id="brain-next" hidden>Next puzzle</button>
+            <button type="button" class="secondary" id="brain-restart">Shuffle &amp; play again</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const SIZE = 13;
+      const MAX_WORD_LEN = 11;
+      const WORDS_PER_PUZZLE = 10;
+
+      const WORD_PACKS = {
+        all: null,
+        classic: [
+          "SEARCH", "WORD", "FIND", "GRID", "LETTER", "CLUE", "PUZZLE", "GAME", "PLAY", "LEVEL",
+          "SCORE", "BRAIN", "SOLVE", "HIDDEN", "RIDDLE", "ANSWER",
+        ],
+        colors: [
+          "BLUE", "GREEN", "RED", "PINK", "GOLD", "CYAN", "CORAL", "IVORY", "AMBER", "JADE",
+          "VIOLET", "CRIMSON", "MAGENTA", "ORANGE", "YELLOW", "PURPLE",
+        ],
+        nature: [
+          "OCEAN", "RIVER", "CLOUD", "STORM", "EARTH", "FOREST", "LEAF", "BRANCH", "SUNSET", "MIST",
+          "THUNDER", "MEADOW", "BREEZE", "WINTER", "SPRING", "CANYON",
+        ],
+        animals: [
+          "EAGLE", "TIGER", "PANDA", "SHARK", "WHALE", "RABBIT", "HORSE", "DRAGON", "FALCON", "OTTER",
+          "BEAVER", "COUGAR", "DOLPHIN", "GECKO", "IGUANA", "HERON",
+        ],
+        space: [
+          "STAR", "MOON", "COMET", "ORBIT", "ROCKET", "SOLAR", "METEOR", "VENUS", "PLUTO", "GALAXY",
+          "NEBULA", "COSMOS", "PULSAR", "QUASAR", "SATURN", "JUPITER",
+        ],
+        food: [
+          "BREAD", "PIZZA", "WAFFLE", "DONUT", "BAGEL", "MANGO", "PEACH", "CURRY", "HERBS", "SALSA",
+          "BUTTER", "PICKLE", "NACHOS", "BROWNIE", "MUFFIN", "GINGER",
+        ],
+        sports: [
+          "SOCCER", "TENNIS", "HOCKEY", "JUDO", "RELAY", "MEDAL", "RUNNER", "SURFER", "SKATER", "GOLFER",
+          "ARCHER", "RACING", "JUMPING", "SPRINT", "TEAM", "ARENA",
+        ],
+        tech: [
+          "CODE", "BYTE", "LOGIC", "PIXEL", "ROBOT", "DRONE", "CACHE", "LOGIN", "MODEM", "CLOUD",
+          "SERVER", "ROUTER", "CURSOR", "SYNTAX", "PYTHON", "JAVA",
+        ],
+        games: [
+          "CHESS", "POKER", "BINGO", "ARCADE", "LEVEL", "BONUS", "QUEST", "COMBO", "TIMER", "JOKER",
+          "AVATAR", "PUZZLE", "RACING", "DUNGEON", "CASTLE", "DRAFT",
+        ],
+        music: [
+          "MELODY", "RHYTHM", "GUITAR", "VIOLIN", "DRUMS", "PIANO", "SONG", "ALBUM", "CONCERT", "CHOIR",
+          "TEMPO", "BRASS", "SINGER", "BAND", "TRACK", "STAGE",
+        ],
+      };
+
+      const DIRS = [
+        [0, 1],
+        [1, 0],
+        [1, 1],
+        [1, -1],
+        [0, -1],
+        [-1, 0],
+        [-1, 1],
+        [-1, -1],
+      ];
+
+      const gridEl = document.getElementById("grid");
+      const wordListEl = document.getElementById("word-list");
+      const statusEl = document.getElementById("status");
+      const btnNew = document.getElementById("btn-new");
+      const packSelect = document.getElementById("pack-select");
+
+      let letters = [];
+      let anchor = null;
+      let foundWords = new Set();
+      let solvedCells = new Set();
+      let activeWords = [];
+
+      function shuffle(a) {
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      function canPlace(word, r, c, dr, dc, g) {
+        for (let i = 0; i < word.length; i++) {
+          const rr = r + dr * i;
+          const cc = c + dc * i;
+          if (rr < 0 || rr >= SIZE || cc < 0 || cc >= SIZE) return false;
+          const ch = g[rr][cc];
+          if (ch !== null && ch !== word[i]) return false;
+        }
+        return true;
+      }
+
+      function placeWord(word, r, c, dr, dc, g) {
+        for (let i = 0; i < word.length; i++) {
+          g[r + dr * i][c + dc * i] = word[i];
+        }
+      }
+
+      function getWordPool(packKey) {
+        if (packKey === "all") {
+          const set = new Set();
+          Object.keys(WORD_PACKS).forEach(function (k) {
+            if (k === "all" || !WORD_PACKS[k]) return;
+            WORD_PACKS[k].forEach(function (w) {
+              set.add(w);
+            });
+          });
+          return Array.from(set);
+        }
+        return WORD_PACKS[packKey].slice();
+      }
+
+      function generate() {
+        const packKey = packSelect.value;
+        const raw = getWordPool(packKey);
+        const pool = raw.filter(function (w) {
+          return w.length >= 3 && w.length <= MAX_WORD_LEN;
+        });
+
+        for (let count = Math.min(WORDS_PER_PUZZLE, pool.length); count >= 5; count--) {
+          for (let attempt = 0; attempt < 120; attempt++) {
+            const words = shuffle([...pool]).slice(0, count);
+            words.sort(function (a, b) {
+              return b.length - a.length;
+            });
+            const g = Array.from({ length: SIZE }, function () {
+              return Array(SIZE).fill(null);
+            });
+            let failed = false;
+            for (let wi = 0; wi < words.length; wi++) {
+              const w = words[wi];
+              let placed = false;
+              for (let t = 0; t < 350; t++) {
+                const dir = DIRS[Math.floor(Math.random() * DIRS.length)];
+                const dr = dir[0];
+                const dc = dir[1];
+                const r = Math.floor(Math.random() * SIZE);
+                const c = Math.floor(Math.random() * SIZE);
+                if (canPlace(w, r, c, dr, dc, g)) {
+                  placeWord(w, r, c, dr, dc, g);
+                  placed = true;
+                  break;
+                }
+              }
+              if (!placed) {
+                failed = true;
+                break;
+              }
+            }
+            if (!failed) {
+              fillEmpty(g);
+              return { grid: g, words: words };
+            }
+          }
+        }
+
+        const shortPool = pool.filter(function (w) {
+          return w.length <= 6;
+        });
+        const chosen = shuffle(shortPool.length ? shortPool : pool).slice(0, 6);
+        chosen.sort(function (a, b) {
+          return b.length - a.length;
+        });
+        const g = Array.from({ length: SIZE }, function () {
+          return Array(SIZE).fill(null);
+        });
+        const placedWords = [];
+        for (let i = 0; i < chosen.length; i++) {
+          const word = chosen[i];
+          let placed = false;
+          for (let t = 0; t < 600; t++) {
+            const dir = DIRS[Math.floor(Math.random() * DIRS.length)];
+            const r = Math.floor(Math.random() * SIZE);
+            const c = Math.floor(Math.random() * SIZE);
+            if (canPlace(word, r, c, dir[0], dir[1], g)) {
+              placeWord(word, r, c, dir[0], dir[1], g);
+              placed = true;
+              break;
+            }
+          }
+          if (!placed) break;
+          placedWords.push(word);
+        }
+        fillEmpty(g);
+        if (placedWords.length === 0) {
+          const fallback = "CAT";
+          for (let i = 0; i < fallback.length; i++) {
+            g[0][i] = fallback[i];
+          }
+          placedWords.push(fallback);
+        }
+        return { grid: g, words: placedWords };
+      }
+
+      function fillEmpty(g) {
+        for (let r = 0; r < SIZE; r++) {
+          for (let c = 0; c < SIZE; c++) {
+            if (g[r][c] === null) {
+              g[r][c] = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+            }
+          }
+        }
+        return g;
+      }
+
+      function cellKey(r, c) {
+        return r + "," + c;
+      }
+
+      function lineCells(r1, c1, r2, c2) {
+        const dr = r2 - r1;
+        const dc = c2 - c1;
+        if (dr === 0 && dc === 0) return [[r1, c1]];
+        if (!(dr === 0 || dc === 0 || Math.abs(dr) === Math.abs(dc))) return null;
+        const steps = Math.max(Math.abs(dr), Math.abs(dc));
+        const sr = dr === 0 ? 0 : dr / Math.abs(dr);
+        const sc = dc === 0 ? 0 : dc / Math.abs(dc);
+        if (r1 + sr * steps !== r2 || c1 + sc * steps !== c2) return null;
+        const out = [];
+        for (let i = 0; i <= steps; i++) {
+          out.push([r1 + sr * i, c1 + sc * i]);
+        }
+        return out;
+      }
+
+      function clearPreview() {
+        gridEl.querySelectorAll(".cell.preview").forEach(function (el) {
+          el.classList.remove("preview");
+        });
+      }
+
+      function setAnchor(r, c, on) {
+        const el = gridEl.querySelector('.cell[data-r="' + r + '"][data-c="' + c + '"]');
+        if (el) el.classList.toggle("anchor", on);
+      }
+
+      function renderWordList() {
+        wordListEl.innerHTML = "";
+        activeWords.forEach(function (w) {
+          const li = document.createElement("li");
+          li.textContent = w;
+          li.dataset.word = w;
+          if (foundWords.has(w)) li.classList.add("found");
+          wordListEl.appendChild(li);
+        });
+      }
+
+      function renderGrid() {
+        gridEl.innerHTML = "";
+        gridEl.style.gridTemplateColumns = "repeat(" + SIZE + ", 1fr)";
+        for (let r = 0; r < SIZE; r++) {
+          for (let c = 0; c < SIZE; c++) {
+            const div = document.createElement("div");
+            div.className = "cell";
+            div.textContent = letters[r][c];
+            div.dataset.r = String(r);
+            div.dataset.c = String(c);
+            div.setAttribute("role", "gridcell");
+            if (solvedCells.has(cellKey(r, c))) div.classList.add("solved");
+            div.addEventListener("pointerenter", onCellEnter);
+            div.addEventListener("pointerdown", onCellDown);
+            div.addEventListener("pointerup", onCellUp);
+            div.addEventListener("click", function (e) {
+              e.preventDefault();
+            });
+            gridEl.appendChild(div);
+          }
+        }
+      }
+
+      function onCellDown(e) {
+        e.preventDefault();
+        const t = e.currentTarget;
+        const r = +t.dataset.r;
+        const c = +t.dataset.c;
+        if (anchor !== null && anchor.r === r && anchor.c === c) {
+          setAnchor(anchor.r, anchor.c, false);
+          anchor = null;
+          clearPreview();
+          statusEl.textContent = "Selection cleared. Pick a letter to start.";
+          statusEl.classList.remove("win");
+          return;
+        }
+        if (anchor === null) {
+          anchor = { r: r, c: c };
+          setAnchor(r, c, true);
+          clearPreview();
+          statusEl.textContent = "Choose the other end of the word.";
+          statusEl.classList.remove("win");
+        }
+      }
+
+      function onCellEnter(e) {
+        if (!anchor) return;
+        const t = e.currentTarget;
+        const r2 = +t.dataset.r;
+        const c2 = +t.dataset.c;
+        const cells = lineCells(anchor.r, anchor.c, r2, c2);
+        clearPreview();
+        if (!cells) return;
+        cells.forEach(function ([r, c]) {
+          const el = gridEl.querySelector('.cell[data-r="' + r + '"][data-c="' + c + '"]');
+          if (el && !el.classList.contains("solved")) el.classList.add("preview");
+        });
+      }
+
+      function onCellUp(e) {
+        if (!anchor) return;
+        const t = e.currentTarget;
+        const r2 = +t.dataset.r;
+        const c2 = +t.dataset.c;
+        if (r2 === anchor.r && c2 === anchor.c) return;
+
+        const cells = lineCells(anchor.r, anchor.c, r2, c2);
+        const ar = anchor.r;
+        const ac = anchor.c;
+        setAnchor(ar, ac, false);
+        anchor = null;
+        clearPreview();
+
+        if (!cells || cells.length < 2) {
+          statusEl.textContent = "That line isn’t straight. Try again.";
+          return;
+        }
+
+        const forward = cells.map(function ([r, c]) {
+          return letters[r][c];
+        }).join("");
+        const backward = forward.split("").reverse().join("");
+
+        let hit = null;
+        for (const w of activeWords) {
+          if (foundWords.has(w)) continue;
+          if (forward === w || backward === w) {
+            hit = w;
+            break;
+          }
+        }
+
+        if (!hit) {
+          statusEl.textContent = "Not a word on the list. Keep looking!";
+          return;
+        }
+
+        foundWords.add(hit);
+        cells.forEach(function ([r, c]) {
+          solvedCells.add(cellKey(r, c));
+        });
+        renderWordList();
+        renderGrid();
+        if (foundWords.size >= activeWords.length) {
+          statusEl.textContent = "You found every word — nice work!";
+          statusEl.classList.add("win");
+        } else {
+          statusEl.textContent = "Found “" + hit + "”! " + (activeWords.length - foundWords.size) + " left.";
+          statusEl.classList.remove("win");
+        }
+      }
+
+      function newGame() {
+        const { grid, words } = generate();
+        letters = grid;
+        activeWords = words;
+        foundWords = new Set();
+        solvedCells = new Set();
+        anchor = null;
+        renderWordList();
+        renderGrid();
+        statusEl.textContent = "Pick the first letter of a word.";
+        statusEl.classList.remove("win");
+      }
+
+      btnNew.addEventListener("click", newGame);
+      packSelect.addEventListener("change", newGame);
+      newGame();
+    })();
+
+    (function () {
+      const tabWord = document.getElementById("tab-wordsearch");
+      const tabBrain = document.getElementById("tab-brain");
+      const panelWord = document.getElementById("panel-wordsearch");
+      const panelBrain = document.getElementById("panel-brain");
+
+      function activateGame(which) {
+        const word = which === "word";
+        tabWord.setAttribute("aria-selected", word);
+        tabBrain.setAttribute("aria-selected", !word);
+        panelWord.classList.toggle("is-hidden", !word);
+        panelWord.hidden = !word;
+        panelBrain.classList.toggle("is-hidden", word);
+        panelBrain.hidden = word;
+      }
+
+      tabWord.addEventListener("click", function () {
+        activateGame("word");
+      });
+      tabBrain.addEventListener("click", function () {
+        activateGame("brain");
+      });
+
+      const BRAIN_PUZZLES = [
+        {
+          q: "You have 3 apples. You take away 2. How many apples do you have?",
+          choices: ["One", "Two", "Three", "Zero"],
+          correct: 1,
+          explain: "The two you took are the ones in your hands.",
+        },
+        {
+          q: "What is 2 + 2 × 2?",
+          choices: ["6", "8", "4", "10"],
+          correct: 0,
+          explain: "Multiply first: 2 × 2 = 4, then 2 + 4 = 6.",
+        },
+        {
+          q: "How many months of the year have at least 28 days?",
+          choices: ["Only February", "All twelve", "Eleven", "Six"],
+          correct: 1,
+          explain: "Every calendar month has 28 days or more.",
+        },
+        {
+          q: "A farmer has 17 sheep. All but 9 run away. How many sheep are left?",
+          choices: ["8", "9", "17", "0"],
+          correct: 1,
+          explain: "“All but 9” means nine stayed behind.",
+        },
+        {
+          q: "Before Mount Everest was discovered, what was the tallest mountain on Earth?",
+          choices: ["K2", "Mount Everest", "None — it was unknown", "Denali"],
+          correct: 1,
+          explain: "The mountain existed before we “discovered” it — still the highest.",
+        },
+        {
+          q: "How many letters are in the phrase “the alphabet”?",
+          choices: ["26", "11", "8", "15"],
+          correct: 1,
+          explain: "Count the letters in the words “the” and “alphabet” together: 3 + 8 = 11.",
+        },
+        {
+          q: "If you overtake the person in second place in a footrace, what place are you in?",
+          choices: ["First", "Second", "Third", "It depends"],
+          correct: 1,
+          explain: "You took their spot — you’re now second, not first.",
+        },
+        {
+          q: "A doctor gives you 3 pills: take one every half hour. How long until they’re all taken?",
+          choices: ["1 hour", "1.5 hours", "90 minutes", "2 hours"],
+          correct: 0,
+          explain: "Now, +30 min, +30 min — that’s one hour for three pills.",
+        },
+        {
+          q: "What gets wetter the more it dries?",
+          choices: ["A sponge", "A towel", "Rain", "Ice"],
+          correct: 1,
+          explain: "A towel dries things — and itself gets wetter doing it.",
+        },
+        {
+          q: "I speak without a mouth and hear without ears. I have nobody, but come alive with wind. What am I?",
+          choices: ["A ghost", "An echo", "A thought", "A radio"],
+          correct: 1,
+          explain: "An echo carries sound without a body.",
+        },
+      ];
+
+      const progressEl = document.getElementById("brain-progress");
+      const qEl = document.getElementById("brain-q");
+      const choicesEl = document.getElementById("brain-choices");
+      const feedbackEl = document.getElementById("brain-feedback");
+      const nextBtn = document.getElementById("brain-next");
+      const restartBtn = document.getElementById("brain-restart");
+      const summaryEl = document.getElementById("brain-summary");
+
+      const BRAIN_TOTAL = 10;
+      let order = [];
+      let step = 0;
+      let locked = false;
+      let correctCount = 0;
+
+      function shuffleOrder() {
+        order = BRAIN_PUZZLES.map(function (_, i) {
+          return i;
+        });
+        for (let i = order.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const t = order[i];
+          order[i] = order[j];
+          order[j] = t;
+        }
+        order = order.slice(0, BRAIN_TOTAL);
+      }
+
+      function showStep() {
+        locked = false;
+        feedbackEl.textContent = "";
+        feedbackEl.classList.remove("ok", "bad");
+        nextBtn.hidden = true;
+        summaryEl.hidden = true;
+        summaryEl.textContent = "";
+        summaryEl.className = "brain-summary";
+        const idx = order[step];
+        const puzzle = BRAIN_PUZZLES[idx];
+        progressEl.textContent = "Puzzle " + (step + 1) + " of " + BRAIN_TOTAL;
+        qEl.textContent = puzzle.q;
+        choicesEl.innerHTML = "";
+        puzzle.choices.forEach(function (label, i) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = label;
+          btn.addEventListener("click", function () {
+            onPick(i, puzzle);
+          });
+          choicesEl.appendChild(btn);
+        });
+      }
+
+      function onPick(choiceIdx, puzzle) {
+        if (locked) return;
+        locked = true;
+        const ok = choiceIdx === puzzle.correct;
+        if (ok) correctCount++;
+        const buttons = choicesEl.querySelectorAll("button");
+        for (let i = 0; i < buttons.length; i++) {
+          buttons[i].disabled = true;
+          if (i === puzzle.correct) buttons[i].classList.add("correct-pick");
+          else if (i === choiceIdx && !ok) buttons[i].classList.add("wrong-pick");
+        }
+        feedbackEl.classList.remove("ok", "bad");
+        if (ok) {
+          feedbackEl.textContent = "Correct! " + puzzle.explain;
+          feedbackEl.classList.add("ok");
+        } else {
+          feedbackEl.textContent = "Not quite. " + puzzle.explain;
+          feedbackEl.classList.add("bad");
+        }
+        const isLast = step >= order.length - 1;
+        if (!isLast) {
+          nextBtn.hidden = false;
+        } else {
+          const total = BRAIN_TOTAL;
+          const pct = Math.round((correctCount / total) * 100);
+          const passed = pct >= 50;
+          summaryEl.hidden = false;
+          summaryEl.className = "brain-summary " + (passed ? "pass" : "fail");
+          const strong = document.createElement("strong");
+          strong.textContent =
+            "Final score: " + correctCount + " / " + total + " (" + pct + "%)";
+          summaryEl.appendChild(strong);
+          summaryEl.appendChild(
+            document.createTextNode(
+              passed
+                ? "Pass — you needed at least 50%."
+                : "Fail — your score is under 50%."
+            )
+          );
+        }
+      }
+
+      nextBtn.addEventListener("click", function () {
+        step++;
+        if (step < order.length) showStep();
+      });
+
+      restartBtn.addEventListener("click", function () {
+        shuffleOrder();
+        step = 0;
+        correctCount = 0;
+        showStep();
+      });
+
+      shuffleOrder();
+      showStep();
+    })();
+  </script>
+</body>
+</html>

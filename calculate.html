@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculator — Abeeha Fatima</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1419;
+      --bg-elevated: #1a222c;
+      --text: #e8eef4;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.15);
+      --border: rgba(148, 163, 184, 0.12);
+      --radius: 14px;
+      --nav-h: 72px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(1.25rem, 4vw, 3rem);
+      background: rgba(15, 20, 25, 0.75);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .nav-links a.primary {
+      color: var(--bg);
+      background: linear-gradient(135deg, var(--accent), #818cf8);
+      box-shadow: 0 4px 20px var(--accent-soft);
+      pointer-events: none;
+    }
+
+    .calc-page {
+      padding: clamp(2rem, 6vw, 4rem) clamp(1.25rem, 4vw, 3rem);
+      min-height: calc(100vh - var(--nav-h));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background:
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-elevated) 45%, var(--bg) 100%);
+    }
+
+    .calc-wrap {
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+      text-align: center;
+    }
+
+    .calc {
+      background: rgba(26, 34, 44, 0.9);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 1rem;
+      box-shadow:
+        0 24px 80px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    .calc-display {
+      font-family: "DM Sans", monospace;
+      font-size: 1.75rem;
+      font-weight: 600;
+      text-align: right;
+      padding: 1rem 1rem 0.75rem;
+      margin-bottom: 0.75rem;
+      background: var(--bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      color: var(--text);
+      min-height: 3.25rem;
+      word-break: break-all;
+    }
+
+    .calc-keys {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+
+    .calc-keys button {
+      font-family: inherit;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 1rem 0.5rem;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .calc-keys button:active {
+      transform: scale(0.97);
+    }
+
+    .calc-keys button:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .calc-keys button.op {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .calc-keys button.op:hover {
+      background: rgba(56, 189, 248, 0.25);
+    }
+
+    .calc-keys button.wide {
+      grid-column: span 2;
+    }
+
+    .calc-keys button.accent-btn {
+      background: linear-gradient(135deg, var(--accent), #818cf8);
+      color: var(--bg);
+    }
+
+    .calc-keys button.accent-btn:hover {
+      filter: brightness(1.08);
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="index.html">Abeeha <span>Fatima</span></a>
+    <nav aria-label="Main">
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="games.html">Games</a></li>
+        <li><a class="primary" href="calculate.html" aria-current="page">Calculator</a></li>
+        <li><a href="paint.html">Paint</a></li>
+        <li><a href="about.html">About Me</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="calc-page">
+    <div class="calc-wrap">
+      <p class="section-label">Calculator</p>
+      <div class="calc" aria-label="Calculator">
+        <div class="calc-display" id="display" role="status" aria-live="polite">0</div>
+        <div class="calc-keys">
+          <button type="button" data-action="clear">C</button>
+          <button type="button" data-action="sign">±</button>
+          <button type="button" data-action="percent">%</button>
+          <button type="button" class="op" data-action="operator" data-value="/">÷</button>
+          <button type="button" data-action="digit" data-value="7">7</button>
+          <button type="button" data-action="digit" data-value="8">8</button>
+          <button type="button" data-action="digit" data-value="9">9</button>
+          <button type="button" class="op" data-action="operator" data-value="*">×</button>
+          <button type="button" data-action="digit" data-value="4">4</button>
+          <button type="button" data-action="digit" data-value="5">5</button>
+          <button type="button" data-action="digit" data-value="6">6</button>
+          <button type="button" class="op" data-action="operator" data-value="-">−</button>
+          <button type="button" data-action="digit" data-value="1">1</button>
+          <button type="button" data-action="digit" data-value="2">2</button>
+          <button type="button" data-action="digit" data-value="3">3</button>
+          <button type="button" class="op" data-action="operator" data-value="+">+</button>
+          <button type="button" class="wide" data-action="digit" data-value="0">0</button>
+          <button type="button" data-action="decimal">.</button>
+          <button type="button" class="accent-btn" data-action="equals">=</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const display = document.getElementById("display");
+      let current = "0";
+      let stored = null;
+      let pendingOp = null;
+      let fresh = true;
+
+      function updateDisplay() {
+        display.textContent = current;
+      }
+
+      function parseCurrent() {
+        return parseFloat(current) || 0;
+      }
+
+      function applyOp(a, b, op) {
+        switch (op) {
+          case "+":
+            return a + b;
+          case "-":
+            return a - b;
+          case "*":
+            return a * b;
+          case "/":
+            return b === 0 ? NaN : a / b;
+          default:
+            return b;
+        }
+      }
+
+      function formatResult(n) {
+        if (!Number.isFinite(n)) return "Error";
+        const s = String(n);
+        if (s.length > 12) return n.toPrecision(8).replace(/\.?0+e/, "e");
+        return s.replace(/\.0+$|(\.\d*?)0+$/, "$1").replace(/\.$/, "");
+      }
+
+      function inputDigit(d) {
+        if (fresh) {
+          current = d;
+          fresh = false;
+        } else {
+          if (current === "0" && d !== "0") current = d;
+          else if (current === "0" && d === "0") return;
+          else if (current.replace("-", "").length < 12) current += d;
+        }
+        updateDisplay();
+      }
+
+      function inputDecimal() {
+        if (fresh) {
+          current = "0.";
+          fresh = false;
+        } else if (!current.includes(".")) {
+          current += ".";
+        }
+        updateDisplay();
+      }
+
+      function commitOp(nextOp) {
+        const val = parseCurrent();
+        if (stored === null || pendingOp === null) {
+          stored = val;
+        } else {
+          const res = applyOp(stored, val, pendingOp);
+          if (!Number.isFinite(res)) {
+            current = "Error";
+            stored = null;
+            pendingOp = null;
+            fresh = true;
+            updateDisplay();
+            return;
+          }
+          stored = res;
+          current = formatResult(stored);
+          updateDisplay();
+        }
+        pendingOp = nextOp;
+        fresh = true;
+      }
+
+      function equals() {
+        if (pendingOp === null) return;
+        const val = parseCurrent();
+        const res = applyOp(stored, val, pendingOp);
+        if (!Number.isFinite(res)) {
+          current = "Error";
+          stored = null;
+          pendingOp = null;
+          fresh = true;
+          updateDisplay();
+          return;
+        }
+        stored = null;
+        pendingOp = null;
+        current = formatResult(res);
+        fresh = true;
+        updateDisplay();
+      }
+
+      function clearAll() {
+        current = "0";
+        stored = null;
+        pendingOp = null;
+        fresh = true;
+        updateDisplay();
+      }
+
+      function toggleSign() {
+        if (current === "0" || current === "Error") return;
+        if (current.startsWith("-")) current = current.slice(1);
+        else current = "-" + current;
+        updateDisplay();
+      }
+
+      function percent() {
+        if (current === "Error") return;
+        const n = parseCurrent() / 100;
+        current = formatResult(n);
+        fresh = true;
+        updateDisplay();
+      }
+
+      document.querySelector(".calc-keys").addEventListener("click", function (e) {
+        const btn = e.target.closest("button");
+        if (!btn) return;
+        const action = btn.dataset.action;
+        if (current === "Error" && action !== "clear") return;
+
+        switch (action) {
+          case "digit":
+            inputDigit(btn.dataset.value);
+            break;
+          case "decimal":
+            inputDecimal();
+            break;
+          case "operator":
+            commitOp(btn.dataset.value);
+            break;
+          case "equals":
+            equals();
+            break;
+          case "clear":
+            clearAll();
+            break;
+          case "sign":
+            toggleSign();
+            break;
+          case "percent":
+            percent();
+            break;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

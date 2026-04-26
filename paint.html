@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paint — Abeeha Fatima</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1419;
+      --bg-elevated: #1a222c;
+      --text: #e8eef4;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.15);
+      --border: rgba(148, 163, 184, 0.12);
+      --radius: 14px;
+      --nav-h: 72px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(1.25rem, 4vw, 3rem);
+      background: rgba(15, 20, 25, 0.75);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      list-style: none;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .nav-links a.primary {
+      color: var(--bg);
+      background: linear-gradient(135deg, var(--accent), #818cf8);
+      box-shadow: 0 4px 20px var(--accent-soft);
+      pointer-events: none;
+    }
+
+    .paint-page {
+      padding: clamp(1.25rem, 4vw, 2rem);
+      min-height: calc(100vh - var(--nav-h));
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg-elevated) 40%, var(--bg) 100%);
+    }
+
+    .paint-inner {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      background: rgba(26, 34, 44, 0.9);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .toolbar label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .toolbar input[type="color"] {
+      width: 2.5rem;
+      height: 2rem;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .toolbar input[type="range"] {
+      width: 120px;
+      accent-color: var(--accent);
+    }
+
+    .toolbar button {
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      transition: background 0.15s;
+    }
+
+    .toolbar button:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .toolbar button.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .toolbar button.danger {
+      color: #f87171;
+    }
+
+    .canvas-wrap {
+      border-radius: calc(var(--radius) + 4px);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow:
+        0 24px 80px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      background: #121820;
+      touch-action: none;
+    }
+
+    #draw-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      vertical-align: middle;
+      cursor: crosshair;
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="index.html">Abeeha <span>Fatima</span></a>
+    <nav aria-label="Main">
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="games.html">Games</a></li>
+        <li><a href="calculate.html">Calculator</a></li>
+        <li><a class="primary" href="paint.html" aria-current="page">Paint</a></li>
+        <li><a href="about.html">About Me</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="paint-page">
+    <div class="paint-inner">
+      <p class="section-label">Paint</p>
+      <div class="toolbar" aria-label="Drawing tools">
+        <label>
+          Color
+          <input type="color" id="brush-color" value="#38bdf8" />
+        </label>
+        <label>
+          Size <span id="size-label">4</span>px
+          <input type="range" id="brush-size" min="1" max="48" value="4" />
+        </label>
+        <button type="button" id="tool-brush" class="active">Brush</button>
+        <button type="button" id="tool-eraser">Eraser</button>
+        <button type="button" id="clear-canvas" class="danger">Clear</button>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="draw-canvas" width="920" height="520" aria-label="Drawing area"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const canvas = document.getElementById("draw-canvas");
+      const ctx = canvas.getContext("2d");
+      const colorInput = document.getElementById("brush-color");
+      const sizeInput = document.getElementById("brush-size");
+      const sizeLabel = document.getElementById("size-label");
+      const btnBrush = document.getElementById("tool-brush");
+      const btnEraser = document.getElementById("tool-eraser");
+      const btnClear = document.getElementById("clear-canvas");
+
+      let drawing = false;
+      let mode = "brush";
+
+      function syncCanvasSize() {
+        const wrap = canvas.parentElement;
+        const w = Math.min(920, wrap.clientWidth);
+        const scale = w / canvas.width;
+        canvas.style.width = w + "px";
+        canvas.style.height = canvas.height * scale + "px";
+      }
+
+      function canvasCoords(clientX, clientY) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        return {
+          x: (clientX - rect.left) * scaleX,
+          y: (clientY - rect.top) * scaleY,
+        };
+      }
+
+      function applyStrokeStyle() {
+        const size = parseInt(sizeInput.value, 10);
+        ctx.lineWidth = size;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        if (mode === "eraser") {
+          ctx.strokeStyle = "#121820";
+          ctx.globalCompositeOperation = "source-over";
+        } else {
+          ctx.strokeStyle = colorInput.value;
+          ctx.globalCompositeOperation = "source-over";
+        }
+      }
+
+      function startStroke(e) {
+        drawing = true;
+        applyStrokeStyle();
+        const p = "touches" in e ? e.touches[0] : e;
+        const { x, y } = canvasCoords(p.clientX, p.clientY);
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+      }
+
+      function moveStroke(e) {
+        if (!drawing) return;
+        if ("touches" in e) e.preventDefault();
+        const p = "touches" in e ? e.touches[0] : e;
+        const { x, y } = canvasCoords(p.clientX, p.clientY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+      }
+
+      function endStroke() {
+        drawing = false;
+        ctx.closePath();
+      }
+
+      function clearBoard() {
+        ctx.fillStyle = "#121820";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      colorInput.addEventListener("input", function () {
+        if (mode === "brush") applyStrokeStyle();
+      });
+
+      sizeInput.addEventListener("input", function () {
+        sizeLabel.textContent = sizeInput.value;
+      });
+
+      btnBrush.addEventListener("click", function () {
+        mode = "brush";
+        btnBrush.classList.add("active");
+        btnEraser.classList.remove("active");
+      });
+
+      btnEraser.addEventListener("click", function () {
+        mode = "eraser";
+        btnEraser.classList.add("active");
+        btnBrush.classList.remove("active");
+      });
+
+      btnClear.addEventListener("click", clearBoard);
+
+      canvas.addEventListener("mousedown", startStroke);
+      canvas.addEventListener("mousemove", moveStroke);
+      window.addEventListener("mouseup", endStroke);
+
+      canvas.addEventListener("touchstart", startStroke, { passive: false });
+      canvas.addEventListener("touchmove", moveStroke, { passive: false });
+      canvas.addEventListener("touchend", endStroke);
+      canvas.addEventListener("touchcancel", endStroke);
+
+      window.addEventListener("resize", syncCanvasSize);
+      clearBoard();
+      syncCanvasSize();
+    })();
+  </script>
+</body>
+</html>
