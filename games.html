@@ -108,8 +108,10 @@
     }
 
     .games-inner {
+      width: 100%;
       max-width: 960px;
       margin: 0 auto;
+      min-width: 0;
     }
 
     .games-intro {
@@ -123,7 +125,7 @@
 
     .game-cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
       gap: 1rem;
       margin-bottom: 2rem;
     }
@@ -175,6 +177,8 @@
 
     .game-panel {
       margin-top: 0.5rem;
+      width: 100%;
+      min-width: 0;
     }
 
     .game-panel.is-hidden {
@@ -219,6 +223,8 @@
       line-height: 1.55;
       margin-bottom: 1.15rem;
       color: var(--text);
+      overflow-wrap: anywhere;
+      hyphens: auto;
     }
 
     .brain-choices {
@@ -360,6 +366,7 @@
       font-size: 0.95rem;
       margin-bottom: 1.25rem;
       max-width: 36rem;
+      overflow-wrap: anywhere;
     }
 
     .game-row {
@@ -367,11 +374,13 @@
       flex-wrap: wrap;
       gap: 1.5rem;
       align-items: flex-start;
+      min-width: 0;
+      width: 100%;
     }
 
     .word-bank {
-      flex: 1;
-      min-width: 200px;
+      flex: 1 1 280px;
+      min-width: 0;
       padding: 1rem 1.25rem;
       background: rgba(26, 34, 44, 0.9);
       border: 1px solid var(--border);
@@ -409,16 +418,20 @@
     }
 
     .grid-wrap {
-      flex: 2;
-      min-width: 260px;
-      padding: 1rem;
+      flex: 2 1 320px;
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+      padding: clamp(0.5rem, 2vw, 1rem);
       background: rgba(26, 34, 44, 0.9);
       border: 1px solid var(--border);
       border-radius: calc(var(--radius) + 4px);
       box-shadow:
         0 24px 80px rgba(0, 0, 0, 0.35),
         inset 0 1px 0 rgba(255, 255, 255, 0.06);
-      overflow: auto;
+      overflow-x: auto;
+      overflow-y: visible;
+      -webkit-overflow-scrolling: touch;
       user-select: none;
       -webkit-user-select: none;
     }
@@ -427,7 +440,10 @@
       display: grid;
       gap: 2px;
       margin: 0 auto;
-      width: fit-content;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
       background: var(--border);
       border: 2px solid var(--border);
       border-radius: 8px;
@@ -435,13 +451,15 @@
     }
 
     .cell {
-      width: clamp(26px, 7vw, 34px);
-      height: clamp(26px, 7vw, 34px);
+      min-width: 0;
+      width: 100%;
+      aspect-ratio: 1;
+      height: auto;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: clamp(0.75rem, 3.5vw, 0.95rem);
+      font-size: clamp(0.55rem, calc(0.35rem + 2.5vw), 0.95rem);
       background: var(--bg-elevated);
       color: var(--text);
       cursor: pointer;
@@ -472,6 +490,8 @@
       flex-wrap: wrap;
       gap: 0.75rem;
       align-items: center;
+      width: 100%;
+      min-width: 0;
     }
 
     .toolbar button {
@@ -514,16 +534,34 @@
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 0.65rem center;
+      max-width: 100%;
+      min-width: 0;
     }
 
     .status {
       font-size: 0.95rem;
       color: var(--text-muted);
+      flex: 1 1 220px;
+      min-width: 0;
+      overflow-wrap: anywhere;
     }
 
     .status.win {
       color: var(--accent);
       font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+      .game-row {
+        flex-direction: column;
+      }
+
+      .word-bank,
+      .grid-wrap {
+        flex: 1 1 auto;
+        width: 100%;
+        max-width: 100%;
+      }
     }
 
     @media (max-width: 768px) {
@@ -545,7 +583,7 @@
       }
 
       .games-page {
-        padding: 1rem clamp(1rem, 4vw, 2rem);
+        padding: 1rem clamp(0.75rem, 3vw, 1.5rem);
         min-height: calc(100vh - 100px);
       }
 
@@ -553,19 +591,7 @@
         grid-template-columns: 1fr;
       }
 
-      .game-row {
-        flex-direction: column;
-      }
-
-      .word-bank,
       .grid-wrap {
-        flex: 1 1 auto;
-        min-width: 0;
-        width: 100%;
-      }
-
-      .grid-wrap {
-        padding: 0.65rem;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
       }
@@ -573,6 +599,11 @@
       .toolbar {
         flex-direction: column;
         align-items: stretch;
+      }
+
+      .toolbar button {
+        width: 100%;
+        text-align: center;
       }
 
       .toolbar select {
@@ -586,6 +617,7 @@
 
       .status {
         flex: 1 1 100%;
+        order: 10;
       }
 
       .brain-root {
@@ -595,6 +627,14 @@
       .brain-q {
         font-size: 1rem;
       }
+
+      .brain-summary {
+        font-size: 0.95rem;
+      }
+
+      .brain-summary strong {
+        font-size: 1.05rem;
+      }
     }
 
     @media (max-width: 400px) {
@@ -603,14 +643,17 @@
         padding: 0.4rem 0.6rem;
       }
 
-      .cell {
-        width: clamp(22px, 6.2vw, 30px);
-        height: clamp(22px, 6.2vw, 30px);
-        font-size: clamp(0.68rem, 3.2vw, 0.85rem);
+      .word-list li {
+        font-size: 0.88rem;
+        letter-spacing: 0.03em;
       }
 
-      .word-list li {
-        font-size: 0.9rem;
+      .cell {
+        font-size: clamp(0.5rem, calc(0.28rem + 2.2vw), 0.85rem);
+      }
+
+      .game-card {
+        padding: 1rem;
       }
     }
   </style>
@@ -987,7 +1030,7 @@
 
       function renderGrid() {
         gridEl.innerHTML = "";
-        gridEl.style.gridTemplateColumns = "repeat(" + SIZE + ", 1fr)";
+        gridEl.style.gridTemplateColumns = "repeat(" + SIZE + ", minmax(0, 1fr))";
         for (let r = 0; r < SIZE; r++) {
           for (let c = 0; c < SIZE; c++) {
             const div = document.createElement("div");
