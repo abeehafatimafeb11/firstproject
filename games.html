@@ -334,6 +334,71 @@
       background: var(--key-muted-hover);
     }
 
+    .ball-root {
+      padding: 1.25rem 1.35rem;
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      box-shadow: var(--shadow-elevated);
+    }
+
+    .ball-hud {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .ball-stats {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .ball-root .secondary {
+      background: var(--key-muted);
+      color: var(--text);
+      border: 1px solid var(--border);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.5rem 1.1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .ball-root .secondary:hover {
+      background: var(--key-muted-hover);
+    }
+
+    .ball-canvas-wrap {
+      width: 100%;
+      max-width: 560px;
+      margin: 0 auto;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 2px solid var(--border);
+      line-height: 0;
+      background: var(--bg);
+    }
+
+    #ball-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    .ball-hint {
+      margin-top: 1rem;
+      margin-bottom: 0;
+    }
+
     .visually-hidden {
       position: absolute;
       width: 1px;
@@ -683,7 +748,7 @@
         <p class="section-label">Games</p>
         <h1>Play &amp; think</h1>
         <p class="hint">
-          Pick a mode below — hunt for words on a grid, or try lateral-thinking brain teasers where the obvious answer is rarely the right one.
+          Pick a mode below — word search, tricky brain teasers, or a quick ball-bounce challenge with the paddle.
         </p>
       </div>
 
@@ -711,6 +776,18 @@
           <span class="game-card-icon" aria-hidden="true">🧠</span>
           <span class="game-card-title">Brain test</span>
           <span class="game-card-desc">Tricky riddles and math traps. Read every word twice before you tap.</span>
+        </button>
+        <button
+          type="button"
+          class="game-card"
+          role="tab"
+          id="tab-ball"
+          aria-selected="false"
+          aria-controls="panel-ball"
+        >
+          <span class="game-card-icon" aria-hidden="true">⚽</span>
+          <span class="game-card-title">Ball bounce</span>
+          <span class="game-card-desc">Keep the ball on the paddle — drag, move the mouse, or use arrow keys. Don’t let it drop!</span>
         </button>
       </div>
 
@@ -781,6 +858,31 @@
             <button type="button" class="secondary" id="brain-next" hidden>Next puzzle</button>
             <button type="button" class="secondary" id="brain-restart">Shuffle &amp; play again</button>
           </div>
+        </div>
+      </section>
+
+      <section
+        id="panel-ball"
+        class="game-panel is-hidden"
+        role="tabpanel"
+        aria-labelledby="tab-ball"
+        hidden
+      >
+        <div class="panel-head">
+          <h2>Ball bounce</h2>
+          <p class="hint">
+            Move the paddle to catch the ball. Each catch adds a point. Missing costs a life — you start with <strong>3 lives</strong>. The ball speeds up slightly as you play.
+          </p>
+        </div>
+        <div class="ball-root">
+          <div class="ball-hud">
+            <p class="ball-stats" id="ball-stats" aria-live="polite">Score: 0 · Lives: 3</p>
+            <button type="button" class="secondary" id="ball-restart">New game</button>
+          </div>
+          <div class="ball-canvas-wrap">
+            <canvas id="ball-canvas" width="480" height="320" aria-label="Ball bounce playfield"></canvas>
+          </div>
+          <p class="hint ball-hint" id="ball-hint">Touch or drag on the game, move the mouse, or use ← → keys.</p>
         </div>
       </section>
     </div>
@@ -1166,17 +1268,25 @@
     (function () {
       const tabWord = document.getElementById("tab-wordsearch");
       const tabBrain = document.getElementById("tab-brain");
+      const tabBall = document.getElementById("tab-ball");
       const panelWord = document.getElementById("panel-wordsearch");
       const panelBrain = document.getElementById("panel-brain");
+      const panelBall = document.getElementById("panel-ball");
 
       function activateGame(which) {
-        const word = which === "word";
-        tabWord.setAttribute("aria-selected", word);
-        tabBrain.setAttribute("aria-selected", !word);
-        panelWord.classList.toggle("is-hidden", !word);
-        panelWord.hidden = !word;
-        panelBrain.classList.toggle("is-hidden", word);
-        panelBrain.hidden = word;
+        const isWord = which === "word";
+        const isBrain = which === "brain";
+        const isBall = which === "ball";
+        tabWord.setAttribute("aria-selected", isWord ? "true" : "false");
+        tabBrain.setAttribute("aria-selected", isBrain ? "true" : "false");
+        tabBall.setAttribute("aria-selected", isBall ? "true" : "false");
+        panelWord.classList.toggle("is-hidden", !isWord);
+        panelWord.hidden = !isWord;
+        panelBrain.classList.toggle("is-hidden", !isBrain);
+        panelBrain.hidden = !isBrain;
+        panelBall.classList.toggle("is-hidden", !isBall);
+        panelBall.hidden = !isBall;
+        window.dispatchEvent(new CustomEvent("games-tab-change", { detail: { tab: which } }));
       }
 
       tabWord.addEventListener("click", function () {
@@ -1184,6 +1294,9 @@
       });
       tabBrain.addEventListener("click", function () {
         activateGame("brain");
+      });
+      tabBall.addEventListener("click", function () {
+        activateGame("ball");
       });
 
       const BRAIN_PUZZLES = [
@@ -1356,6 +1469,210 @@
 
       shuffleOrder();
       showStep();
+    })();
+
+    (function () {
+      const canvas = document.getElementById("ball-canvas");
+      const statsEl = document.getElementById("ball-stats");
+      const restartBtn = document.getElementById("ball-restart");
+      if (!canvas || !statsEl || !restartBtn) return;
+
+      const ctx = canvas.getContext("2d");
+      const W = 480;
+      const H = 320;
+      const ballR = 9;
+      const paddleW = 88;
+      const paddleH = 12;
+      const paddleY = H - 28;
+      const baseSpeed = 4.15;
+
+      let paddleX = W / 2 - paddleW / 2;
+      let ball = { x: W / 2, y: H / 3, vx: 0, vy: 0 };
+      let score = 0;
+      let lives = 3;
+      let speedMul = 1;
+      let running = false;
+      let raf = 0;
+      const keys = { left: false, right: false };
+
+      function cssVar(name, fallback) {
+        const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        return v || fallback;
+      }
+
+      function resetBall() {
+        ball.x = W / 2;
+        ball.y = H / 4;
+        const dir = Math.random() < 0.5 ? -1 : 1;
+        const angle = ((Math.random() * 48 + 52) * Math.PI) / 180;
+        const sp = baseSpeed * speedMul;
+        ball.vx = Math.cos(angle) * sp * dir;
+        ball.vy = Math.sin(angle) * sp;
+      }
+
+      function fullReset() {
+        score = 0;
+        lives = 3;
+        speedMul = 1;
+        paddleX = W / 2 - paddleW / 2;
+        resetBall();
+        updateStats();
+      }
+
+      function updateStats() {
+        statsEl.textContent = "Score: " + score + " · Lives: " + lives;
+      }
+
+      function loseLife() {
+        lives -= 1;
+        if (lives <= 0) {
+          running = false;
+          cancelAnimationFrame(raf);
+          statsEl.textContent = "Game over — final score: " + score + ". Tap New game.";
+          return;
+        }
+        updateStats();
+        resetBall();
+      }
+
+      function step() {
+        if (keys.left) paddleX -= 7;
+        if (keys.right) paddleX += 7;
+        paddleX = Math.max(0, Math.min(W - paddleW, paddleX));
+
+        ball.x += ball.vx;
+        ball.y += ball.vy;
+
+        if (ball.x - ballR < 0) {
+          ball.x = ballR;
+          ball.vx *= -1;
+        }
+        if (ball.x + ballR > W) {
+          ball.x = W - ballR;
+          ball.vx *= -1;
+        }
+        if (ball.y - ballR < 0) {
+          ball.y = ballR;
+          ball.vy *= -1;
+        }
+
+        if (
+          ball.vy > 0 &&
+          ball.y + ballR > paddleY &&
+          ball.y + ballR < paddleY + paddleH + ballR + 4 &&
+          ball.x + ballR > paddleX &&
+          ball.x - ballR < paddleX + paddleW
+        ) {
+          ball.y = paddleY - ballR;
+          ball.vy = -Math.abs(ball.vy);
+          const hit = (ball.x - (paddleX + paddleW / 2)) / (paddleW / 2);
+          ball.vx += hit * 1.85;
+          const maxVx = 7.2 * speedMul;
+          ball.vx = Math.max(-maxVx, Math.min(maxVx, ball.vx));
+          score += 1;
+          if (score % 5 === 0) speedMul = Math.min(speedMul + 0.1, 1.95);
+          updateStats();
+        }
+
+        if (ball.y - ballR > H + 8) {
+          loseLife();
+        }
+      }
+
+      function draw() {
+        const bg = cssVar("--bg", "#0f1419");
+        const accent = cssVar("--accent", "#38bdf8");
+        const paddleFill = cssVar("--text", "#e8eef4");
+        const line = cssVar("--border", "rgba(148,163,184,0.3)");
+
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = line;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(0.5, 0.5, W - 1, H - 1);
+
+        ctx.fillStyle = paddleFill;
+        ctx.fillRect(paddleX, paddleY, paddleW, paddleH);
+
+        ctx.fillStyle = accent;
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ballR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function loop() {
+        if (!running) return;
+        step();
+        if (!running) return;
+        draw();
+        raf = requestAnimationFrame(loop);
+      }
+
+      function startLoop() {
+        if (lives <= 0) fullReset();
+        stopLoop();
+        running = true;
+        raf = requestAnimationFrame(loop);
+      }
+
+      function stopLoop() {
+        running = false;
+        cancelAnimationFrame(raf);
+        raf = 0;
+      }
+
+      function pointerToPaddle(e) {
+        const rect = canvas.getBoundingClientRect();
+        const scale = W / rect.width;
+        const px = (e.clientX - rect.left) * scale;
+        paddleX = px - paddleW / 2;
+        paddleX = Math.max(0, Math.min(W - paddleW, paddleX));
+      }
+
+      canvas.addEventListener("pointermove", pointerToPaddle);
+      canvas.addEventListener("pointerdown", function (e) {
+        try {
+          canvas.setPointerCapture(e.pointerId);
+        } catch (err) {}
+        pointerToPaddle(e);
+      });
+
+      window.addEventListener(
+        "keydown",
+        function (e) {
+          if (e.key === "ArrowLeft") keys.left = true;
+          if (e.key === "ArrowRight") keys.right = true;
+        },
+        true
+      );
+      window.addEventListener(
+        "keyup",
+        function (e) {
+          if (e.key === "ArrowLeft") keys.left = false;
+          if (e.key === "ArrowRight") keys.right = false;
+        },
+        true
+      );
+
+      restartBtn.addEventListener("click", function () {
+        stopLoop();
+        fullReset();
+        draw();
+        const panelBall = document.getElementById("panel-ball");
+        if (panelBall && !panelBall.hidden) startLoop();
+      });
+
+      window.addEventListener("games-tab-change", function (e) {
+        if (e.detail && e.detail.tab === "ball") {
+          startLoop();
+        } else {
+          stopLoop();
+          draw();
+        }
+      });
+
+      fullReset();
+      draw();
     })();
   </script>
   <script src="theme.js"></script>
