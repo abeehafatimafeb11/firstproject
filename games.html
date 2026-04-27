@@ -4,24 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Games — Abeeha Fatima</title>
+  <script>
+    (function () {
+      var k = "abeeha-theme";
+      var t = null;
+      try {
+        t = localStorage.getItem(k);
+      } catch (e) {}
+      if (t !== "light" && t !== "dark") {
+        t = "dark";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+  <link rel="stylesheet" href="theme.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --bg: #0f1419;
-      --bg-elevated: #1a222c;
-      --text: #e8eef4;
-      --text-muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-soft: rgba(56, 189, 248, 0.15);
-      --border: rgba(148, 163, 184, 0.12);
-      --radius: 14px;
-      --nav-h: 72px;
-      --found: rgba(56, 189, 248, 0.35);
-      --select: rgba(129, 140, 248, 0.4);
-    }
-
     * {
       box-sizing: border-box;
       margin: 0;
@@ -52,7 +52,7 @@
       flex-wrap: wrap;
       row-gap: 0.65rem;
       padding: 0.65rem clamp(1rem, 4vw, 3rem);
-      background: rgba(15, 20, 25, 0.75);
+      background: var(--nav-bg);
       backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border);
     }
@@ -91,11 +91,11 @@
 
     .nav-links a:hover {
       color: var(--text);
-      background: rgba(255, 255, 255, 0.06);
+      background: var(--nav-link-hover-bg);
     }
 
     .nav-links a.primary {
-      color: var(--bg);
+      color: var(--primary-pill-fg);
       background: linear-gradient(135deg, var(--accent), #818cf8);
       box-shadow: 0 4px 20px var(--accent-soft);
       pointer-events: none;
@@ -139,7 +139,7 @@
       text-align: left;
       border: 1px solid var(--border);
       border-radius: calc(var(--radius) + 2px);
-      background: rgba(26, 34, 44, 0.65);
+      background: var(--surface-card-mid);
       color: var(--text);
       cursor: pointer;
       font-family: inherit;
@@ -147,14 +147,14 @@
     }
 
     .game-card:hover {
-      background: rgba(26, 34, 44, 0.95);
-      border-color: rgba(56, 189, 248, 0.35);
+      background: var(--surface-card-strong);
+      border-color: var(--game-accent-ring);
     }
 
     .game-card[aria-selected="true"] {
       border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent-soft), 0 12px 40px rgba(0, 0, 0, 0.25);
-      background: rgba(56, 189, 248, 0.08);
+      box-shadow: var(--game-focus-shadow);
+      background: var(--game-accent-fill);
     }
 
     .game-card-icon {
@@ -202,10 +202,10 @@
 
     .brain-root {
       padding: 1.25rem 1.35rem;
-      background: rgba(26, 34, 44, 0.9);
+      background: var(--surface-card);
       border: 1px solid var(--border);
       border-radius: calc(var(--radius) + 4px);
-      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+      box-shadow: var(--shadow-elevated);
     }
 
     .brain-progress {
@@ -249,8 +249,8 @@
     }
 
     .brain-choices button:hover:not(:disabled) {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(56, 189, 248, 0.4);
+      background: var(--game-input-hover-bg);
+      border-color: var(--game-input-focus-border);
     }
 
     .brain-choices button:disabled {
@@ -318,7 +318,7 @@
     }
 
     .brain-actions button.secondary {
-      background: rgba(255, 255, 255, 0.08);
+      background: var(--key-muted);
       color: var(--text);
       border: 1px solid var(--border);
       font-family: inherit;
@@ -330,7 +330,7 @@
     }
 
     .brain-actions button.secondary:hover {
-      background: rgba(255, 255, 255, 0.12);
+      background: var(--key-muted-hover);
     }
 
     .visually-hidden {
@@ -382,7 +382,7 @@
       flex: 1 1 280px;
       min-width: 0;
       padding: 1rem 1.25rem;
-      background: rgba(26, 34, 44, 0.9);
+      background: var(--surface-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
     }
@@ -423,12 +423,12 @@
       width: 100%;
       max-width: 100%;
       padding: clamp(0.5rem, 2vw, 1rem);
-      background: rgba(26, 34, 44, 0.9);
+      background: var(--surface-card);
       border: 1px solid var(--border);
       border-radius: calc(var(--radius) + 4px);
       box-shadow:
-        0 24px 80px rgba(0, 0, 0, 0.35),
-        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        var(--grid-wrap-outer-shadow),
+        inset 0 1px 0 var(--inset-highlight);
       overflow-x: auto;
       overflow-y: visible;
       -webkit-overflow-scrolling: touch;
@@ -467,7 +467,7 @@
     }
 
     .cell:hover {
-      background: rgba(255, 255, 255, 0.08);
+      background: var(--cell-hover);
     }
 
     .cell.anchor {
@@ -503,7 +503,7 @@
       border-radius: 999px;
       cursor: pointer;
       background: linear-gradient(135deg, var(--accent), #818cf8);
-      color: var(--bg);
+      color: var(--primary-pill-fg);
       transition: filter 0.15s;
     }
 
@@ -669,6 +669,10 @@
         <li><a href="paint.html">Paint</a></li>
         <li><a href="about.html">About Me</a></li>
       </ul>
+      <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle light or dark theme" title="Theme">
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M17.657 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+      </button>
     </nav>
   </header>
 
@@ -1353,5 +1357,6 @@
       showStep();
     })();
   </script>
+  <script src="theme.js"></script>
 </body>
 </html>
