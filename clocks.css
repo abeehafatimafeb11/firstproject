@@ -1,0 +1,109 @@
+/* Digital (left) + analog (right) — paired with clocks.js */
+
+.clocks-bar {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem clamp(1rem, 4vw, 3rem);
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+}
+
+.clocks-digital {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.clocks-digital time {
+  font-family: "DM Sans", ui-monospace, monospace;
+  font-size: clamp(1.35rem, 3.5vw, 1.85rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  line-height: 1.15;
+}
+
+.clocks-digital .clocks-date {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.clocks-analog-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.clocks-analog {
+  width: clamp(72px, 14vw, 104px);
+  height: clamp(72px, 14vw, 104px);
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15));
+}
+
+html[data-theme="dark"] .clocks-analog {
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.35));
+}
+
+.clocks-analog .face {
+  fill: var(--surface-card-mid);
+  stroke: var(--border);
+  stroke-width: 1.5;
+}
+
+.clocks-analog .tick-major {
+  stroke: var(--text-muted);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+
+.clocks-analog .tick-minor {
+  stroke: var(--border);
+  stroke-width: 0.6;
+  stroke-linecap: round;
+}
+
+.clocks-analog .center-dot {
+  fill: var(--accent);
+}
+
+.clocks-analog .hand {
+  stroke-linecap: round;
+}
+
+.clocks-analog .hand-hour {
+  stroke: var(--text);
+  stroke-width: 3.5;
+}
+
+.clocks-analog .hand-minute {
+  stroke: var(--text);
+  stroke-width: 2.5;
+  opacity: 0.92;
+}
+
+.clocks-analog .hand-second {
+  stroke: var(--accent);
+  stroke-width: 1.25;
+  opacity: 0.95;
+}
+
+@media (max-width: 520px) {
+  .clocks-bar {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .clocks-analog-wrap {
+    justify-content: center;
+  }
+}
