@@ -36,6 +36,14 @@
   letter-spacing: 0.02em;
 }
 
+.clocks-digital .clocks-date-hijri {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+}
+
 .clocks-analog-wrap {
   flex-shrink: 0;
   display: flex;

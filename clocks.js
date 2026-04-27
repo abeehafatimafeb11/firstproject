@@ -3,6 +3,31 @@
     return n < 10 ? "0" + n : String(n);
   }
 
+  function formatHijri(date) {
+    var opts = {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    };
+    try {
+      return (
+        new Intl.DateTimeFormat(undefined, Object.assign({ calendar: "islamic-umalqura" }, opts)).format(
+          date
+        ) + " AH"
+      );
+    } catch (e1) {
+      try {
+        return (
+          new Intl.DateTimeFormat(undefined, Object.assign({ calendar: "islamic" }, opts)).format(date) +
+          " AH"
+        );
+      } catch (e2) {
+        return "";
+      }
+    }
+  }
+
   function insertBar() {
     if (document.querySelector(".clocks-bar")) return true;
     var header = document.querySelector("header.nav");
@@ -16,6 +41,7 @@
       '<div class="clocks-digital">' +
       '<time class="clocks-time" datetime="" id="clocks-digital-time">—:—:—</time>' +
       '<span class="clocks-date" id="clocks-digital-date"></span>' +
+      '<span class="clocks-date-hijri" id="clocks-digital-hijri"></span>' +
       "</div>" +
       '<div class="clocks-analog-wrap" aria-hidden="true">' +
       '<svg class="clocks-analog" viewBox="0 0 100 100" role="img">' +
@@ -69,6 +95,7 @@
       lastSecond = s;
       var timeEl = document.getElementById("clocks-digital-time");
       var dateEl = document.getElementById("clocks-digital-date");
+      var hijriEl = document.getElementById("clocks-digital-hijri");
       if (timeEl) {
         timeEl.textContent = pad(h) + ":" + pad(m) + ":" + pad(s);
         timeEl.setAttribute("datetime", now.toISOString());
@@ -80,6 +107,11 @@
           month: "short",
           day: "numeric",
         });
+      }
+      if (hijriEl) {
+        var hijri = formatHijri(now);
+        hijriEl.textContent = hijri ? "Hijri · " + hijri : "";
+        hijriEl.style.display = hijri ? "" : "none";
       }
     }
 
