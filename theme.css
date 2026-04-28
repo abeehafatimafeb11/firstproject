@@ -1,18 +1,24 @@
 /* Theme tokens — paired with theme.js (data-theme on <html>) */
 
-.nav nav {
+.nav-brand {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  min-width: 0;
+}
+
+.nav-actions .nav-links {
+  justify-content: flex-end;
+}
+
+.nav-actions {
   display: flex;
   align-items: center;
   gap: 0.35rem;
   flex-wrap: wrap;
   justify-content: flex-end;
-}
-
-.nav-trailing {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .nav-overflow {
@@ -52,7 +58,8 @@
 .nav-overflow-menu {
   position: absolute;
   top: calc(100% + 0.35rem);
-  right: 0;
+  left: 0;
+  right: auto;
   min-width: 12rem;
   margin: 0;
   padding: 0.35rem;
@@ -175,7 +182,7 @@ html[data-theme="light"] {
   justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
-  margin-left: 0.25rem;
+  margin-left: 0;
   padding: 0;
   border: 1px solid var(--border);
   border-radius: 999px;
