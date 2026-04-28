@@ -27,10 +27,51 @@
     document.querySelectorAll("[data-theme-toggle]").forEach(wireToggle);
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initToggles);
-  } else {
+  function initNavOverflow() {
+    document.querySelectorAll("[data-nav-overflow]").forEach(function (root) {
+      var btn = root.querySelector(".nav-overflow-btn");
+      var menu = root.querySelector(".nav-overflow-menu");
+      if (!btn || !menu || root.dataset.navOverflowWired === "1") return;
+      root.dataset.navOverflowWired = "1";
+
+      function setOpen(open) {
+        menu.hidden = !open;
+        menu.setAttribute("aria-hidden", open ? "false" : "true");
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+      }
+
+      function close() {
+        setOpen(false);
+      }
+
+      btn.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        setOpen(menu.hidden);
+      });
+
+      document.addEventListener("click", function (ev) {
+        if (!root.contains(ev.target)) close();
+      });
+
+      document.addEventListener("keydown", function (ev) {
+        if (ev.key === "Escape") close();
+      });
+
+      menu.querySelectorAll("a").forEach(function (a) {
+        a.addEventListener("click", close);
+      });
+    });
+  }
+
+  function init() {
     initToggles();
+    initNavOverflow();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
   }
 
   window.AbeehaTheme = { applyTheme: applyTheme };
