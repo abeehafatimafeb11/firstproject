@@ -585,6 +585,16 @@
       filter: brightness(1.08);
     }
 
+    .toolbar button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      filter: none;
+    }
+
+    .toolbar button:disabled:hover {
+      filter: none;
+    }
+
     .toolbar .theme-label {
       display: flex;
       align-items: center;
@@ -623,6 +633,146 @@
     .status.win {
       color: var(--accent);
       font-weight: 600;
+    }
+
+    .wordsearch-timer-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .wordsearch-timer-display {
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--accent);
+      min-width: 3.25rem;
+    }
+
+    .wordsearch-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 250;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: rgba(15, 23, 42, 0.62);
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+
+    [data-theme="light"] .wordsearch-overlay {
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .wordsearch-overlay.is-visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .wordsearch-overlay-card {
+      max-width: min(92vw, 28rem);
+      padding: clamp(1.5rem, 4vw, 2.25rem);
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 6px);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+      text-align: center;
+    }
+
+    .wordsearch-overlay-msg {
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(1.15rem, 4.5vw, 1.85rem);
+      line-height: 1.35;
+      letter-spacing: 0.02em;
+      margin-bottom: 1.25rem;
+    }
+
+    .wordsearch-overlay-msg.is-win {
+      background: linear-gradient(
+        105deg,
+        var(--accent),
+        #e879f9,
+        #34d399,
+        #38bdf8,
+        var(--accent)
+      );
+      background-size: 280% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      padding-bottom: 0.15em;
+      filter: drop-shadow(0 2px 14px rgba(129, 140, 248, 0.55));
+      animation:
+        wordsearch-win-shimmer 2.4s linear infinite,
+        wordsearch-win-pop 0.95s cubic-bezier(0.34, 1.56, 0.64, 1) infinite alternate;
+    }
+
+    .wordsearch-overlay-msg.is-lose {
+      color: var(--text);
+      animation: wordsearch-encourage 2.2s ease-in-out infinite;
+    }
+
+    @keyframes wordsearch-win-shimmer {
+      0% {
+        background-position: 0% 50%;
+      }
+      100% {
+        background-position: 100% 50%;
+      }
+    }
+
+    @keyframes wordsearch-win-pop {
+      0% {
+        transform: scale(1) translateY(0);
+      }
+      100% {
+        transform: scale(1.08) translateY(-3px);
+      }
+    }
+
+    @keyframes wordsearch-encourage {
+      0%,
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      50% {
+        opacity: 0.88;
+        transform: translateY(-5px);
+      }
+    }
+
+    .wordsearch-overlay-card button {
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.55rem 1.25rem;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), #818cf8);
+      color: var(--primary-pill-fg);
+      transition: filter 0.15s;
+    }
+
+    .wordsearch-overlay-card button:hover {
+      filter: brightness(1.08);
+    }
+
+    .grid.wordsearch-round-done {
+      opacity: 0.72;
+      pointer-events: none;
     }
 
     @media (max-width: 900px) {
@@ -819,7 +969,7 @@
         <div class="panel-head">
           <h2>Word search</h2>
           <p class="hint">
-            Tap a letter, then tap the other end of the word. Use <strong>Theme</strong> for different lists or <strong>Mix all</strong>. <strong>New puzzle</strong> shuffles the same theme.
+            Tap a letter, then tap the other end of the word. Use <strong>Theme</strong> for different lists or <strong>Mix all</strong>. <strong>New puzzle</strong> shuffles the same theme. Choose a time limit (or <strong>None</strong>), press <strong>Start</strong>, then find <strong>more than four</strong> words before time runs out to win! Use <strong>End</strong> to stop the round early.
           </p>
         </div>
 
@@ -848,8 +998,31 @@
             <option value="games">Games &amp; play</option>
             <option value="music">Music</option>
           </select>
+          <label class="wordsearch-timer-label" for="wordsearch-timer-select">Timer</label>
+          <select id="wordsearch-timer-select" aria-label="Round length">
+            <option value="60">60 sec</option>
+            <option value="40">40 sec</option>
+            <option value="25">25 sec</option>
+            <option value="none">None</option>
+          </select>
+          <span class="wordsearch-timer-display" id="wordsearch-timer-display" aria-live="polite">60s</span>
+          <button type="button" id="wordsearch-start-btn" aria-label="Start timer">Start</button>
           <button type="button" id="btn-new">New puzzle</button>
           <p class="status" id="status" aria-live="polite"></p>
+        </div>
+
+        <div
+          id="wordsearch-overlay"
+          class="wordsearch-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="wordsearch-overlay-msg"
+          hidden
+        >
+          <div class="wordsearch-overlay-card">
+            <p id="wordsearch-overlay-msg" class="wordsearch-overlay-msg"></p>
+            <button type="button" id="wordsearch-overlay-dismiss">Play again</button>
+          </div>
         </div>
       </section>
 
@@ -973,12 +1146,112 @@
       const statusEl = document.getElementById("status");
       const btnNew = document.getElementById("btn-new");
       const packSelect = document.getElementById("pack-select");
+      const timerSelect = document.getElementById("wordsearch-timer-select");
+      const timerDisplayEl = document.getElementById("wordsearch-timer-display");
+      const btnStart = document.getElementById("wordsearch-start-btn");
+      const overlayEl = document.getElementById("wordsearch-overlay");
+      const overlayMsgEl = document.getElementById("wordsearch-overlay-msg");
+      const overlayDismissBtn = document.getElementById("wordsearch-overlay-dismiss");
 
       let letters = [];
       let anchor = null;
       let foundWords = new Set();
       let solvedCells = new Set();
       let activeWords = [];
+      let timerId = null;
+      let secondsLeft = 0;
+      let roundEnded = false;
+
+      function stopWordsearchTimer() {
+        if (timerId !== null) {
+          clearInterval(timerId);
+          timerId = null;
+        }
+      }
+
+      function isTimedMode() {
+        return timerSelect.value !== "none";
+      }
+
+      function resetTimerIdleDisplay() {
+        stopWordsearchTimer();
+        setWordsearchStartButtonIdle();
+        if (!isTimedMode()) {
+          timerDisplayEl.textContent = "—";
+          btnStart.disabled = true;
+        } else {
+          const dur = parseInt(timerSelect.value, 10) || 60;
+          timerDisplayEl.textContent = dur + "s";
+          btnStart.disabled = roundEnded;
+        }
+      }
+
+      function setWordsearchStartButtonIdle() {
+        btnStart.textContent = "Start";
+        btnStart.setAttribute("aria-label", "Start timer");
+      }
+
+      function setWordsearchStartButtonRunning() {
+        btnStart.textContent = "End";
+        btnStart.setAttribute("aria-label", "End round early");
+      }
+
+      function hideWordsearchOverlay() {
+        overlayEl.classList.remove("is-visible");
+        overlayEl.hidden = true;
+        overlayEl.setAttribute("aria-hidden", "true");
+        overlayMsgEl.classList.remove("is-win", "is-lose");
+        gridEl.classList.remove("wordsearch-round-done");
+      }
+
+      function finishWordsearchRound(reason) {
+        if (roundEnded) return;
+        roundEnded = true;
+        stopWordsearchTimer();
+        const won = foundWords.size > 4;
+        overlayMsgEl.textContent = won
+          ? "CONGRATS YOU WON!!!!"
+          : "TRY BETTER NEXT TIME.. NEVER GIVE UP!! :)";
+        overlayMsgEl.classList.toggle("is-win", won);
+        overlayMsgEl.classList.toggle("is-lose", !won);
+        overlayEl.hidden = false;
+        overlayEl.setAttribute("aria-hidden", "false");
+        requestAnimationFrame(function () {
+          overlayEl.classList.add("is-visible");
+        });
+        gridEl.classList.add("wordsearch-round-done");
+        setWordsearchStartButtonIdle();
+        btnStart.disabled = true;
+        if (reason === "time") {
+          statusEl.textContent = won
+            ? "Time’s up — you found more than four words!"
+            : "Time’s up — find more than four words next round!";
+          statusEl.classList.toggle("win", won);
+        } else if (reason === "end") {
+          statusEl.textContent = won
+            ? "Round ended — you found more than four words!"
+            : "Round ended — find more than four words next time!";
+          statusEl.classList.toggle("win", won);
+        }
+      }
+
+      function tickWordsearchTimer() {
+        secondsLeft -= 1;
+        timerDisplayEl.textContent = secondsLeft + "s";
+        if (secondsLeft <= 0) {
+          finishWordsearchRound("time");
+        }
+      }
+
+      function startWordsearchTimer() {
+        stopWordsearchTimer();
+        if (!isTimedMode()) return;
+        const dur = parseInt(timerSelect.value, 10) || 60;
+        secondsLeft = dur;
+        timerDisplayEl.textContent = secondsLeft + "s";
+        timerId = window.setInterval(tickWordsearchTimer, 1000);
+        setWordsearchStartButtonRunning();
+      }
 
       function shuffle(a) {
         for (let i = a.length - 1; i > 0; i--) {
@@ -1178,6 +1451,7 @@
       }
 
       function onCellDown(e) {
+        if (roundEnded) return;
         e.preventDefault();
         const t = e.currentTarget;
         const r = +t.dataset.r;
@@ -1200,7 +1474,7 @@
       }
 
       function onCellEnter(e) {
-        if (!anchor) return;
+        if (roundEnded || !anchor) return;
         const t = e.currentTarget;
         const r2 = +t.dataset.r;
         const c2 = +t.dataset.c;
@@ -1214,7 +1488,7 @@
       }
 
       function onCellUp(e) {
-        if (!anchor) return;
+        if (roundEnded || !anchor) return;
         const t = e.currentTarget;
         const r2 = +t.dataset.r;
         const c2 = +t.dataset.c;
@@ -1260,6 +1534,7 @@
         if (foundWords.size >= activeWords.length) {
           statusEl.textContent = "You found every word — nice work!";
           statusEl.classList.add("win");
+          finishWordsearchRound("complete");
         } else {
           statusEl.textContent = "Found “" + hit + "”! " + (activeWords.length - foundWords.size) + " left.";
           statusEl.classList.remove("win");
@@ -1267,6 +1542,9 @@
       }
 
       function newGame() {
+        hideWordsearchOverlay();
+        roundEnded = false;
+        stopWordsearchTimer();
         const { grid, words } = generate();
         letters = grid;
         activeWords = words;
@@ -1277,10 +1555,21 @@
         renderGrid();
         statusEl.textContent = "Pick the first letter of a word.";
         statusEl.classList.remove("win");
+        resetTimerIdleDisplay();
       }
 
       btnNew.addEventListener("click", newGame);
       packSelect.addEventListener("change", newGame);
+      timerSelect.addEventListener("change", resetTimerIdleDisplay);
+      btnStart.addEventListener("click", function () {
+        if (roundEnded || !isTimedMode()) return;
+        if (timerId !== null) {
+          finishWordsearchRound("end");
+          return;
+        }
+        startWordsearchTimer();
+      });
+      overlayDismissBtn.addEventListener("click", newGame);
       newGame();
     })();
 
