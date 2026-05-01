@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en" data-nav-current="coloring">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coloring — Abeeha Fatima</title>
+  <meta name="description" content="Choose a built-in sheet or upload line art — then paint or fill colors." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://abeehafatima.me/coloring.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://abeehafatima.me/coloring.html" />
+  <meta property="og:title" content="Coloring — Abeeha Fatima" />
+  <meta property="og:description" content="Built-in worksheets or upload your own — brush and fill under the outlines." />
+  <meta property="og:site_name" content="Abeeha Fatima" />
+  <script>
+    (function () {
+      var k = "abeeha-theme";
+      var t = null;
+      try {
+        t = localStorage.getItem(k);
+      } catch (e) {}
+      if (t !== "light" && t !== "dark") {
+        t = "dark";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+  <link rel="stylesheet" href="theme.css" />
+  <link rel="stylesheet" href="clocks.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .coloring-page {
+      padding: clamp(1.25rem, 4vw, 2rem);
+      min-height: calc(100vh - var(--nav-h));
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg-elevated) 40%, var(--bg) 100%);
+    }
+
+    .coloring-inner {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .coloring-page h1 {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(1.35rem, 2.75vw, 1.85rem);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .coloring-intro {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.35rem;
+      max-width: 40rem;
+    }
+
+    .coloring-root {
+      padding: 1.25rem 1.35rem;
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      box-shadow: var(--shadow-elevated);
+    }
+
+    .coloring-source-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.65rem 1.25rem;
+      margin-bottom: 1rem;
+      padding: 0.65rem 1rem;
+      border-radius: var(--radius);
+      border: 1px dashed var(--border);
+      background: var(--surface-card-mid);
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    .coloring-source-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      color: inherit;
+    }
+
+    .coloring-source-row select {
+      font: inherit;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text);
+      padding: 0.4rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      min-width: min(100%, 12rem);
+      cursor: pointer;
+    }
+
+    .coloring-source-row .upload-sep {
+      font-size: 0.82rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      opacity: 0.75;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .coloring-source-row input[type="file"] {
+      font-size: 0.82rem;
+      max-width: min(100%, 18rem);
+      color: var(--text);
+    }
+
+    .coloring-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.65rem 1rem;
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .coloring-await-hint {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1.25rem;
+      font-size: 0.95rem;
+      line-height: 1.55;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.9);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    html[data-theme="dark"] .coloring-await-hint {
+      background: rgba(22, 24, 32, 0.92);
+    }
+
+    .coloring-await-hint.is-hidden {
+      display: none;
+    }
+
+    .coloring-toolbar label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .coloring-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    .color-swatch {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      padding: 0;
+      flex-shrink: 0;
+      transition: transform 0.1s, box-shadow 0.15s;
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.08);
+    }
+
+    .color-swatch[aria-checked="true"] {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 1px var(--accent-soft);
+    }
+
+    .coloring-toolbar input[type="color"] {
+      width: 2.75rem;
+      height: 2rem;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .coloring-toolbar input[type="range"] {
+      width: 100px;
+      accent-color: var(--accent);
+    }
+
+    .coloring-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .coloring-tools button {
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.45rem 0.95rem;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      background: var(--key-muted);
+      color: var(--text);
+      transition: background 0.15s;
+    }
+
+    .coloring-tools button:hover {
+      background: var(--key-muted-hover);
+    }
+
+    .coloring-tools button.mode-on {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .coloring-tools button.danger {
+      color: #f87171;
+      background: rgba(248, 113, 113, 0.12);
+    }
+
+    .coloring-stack {
+      position: relative;
+      width: 100%;
+      max-width: 920px;
+      margin: 0 auto;
+      border-radius: calc(var(--radius) + 4px);
+      overflow: hidden;
+      border: 2px solid var(--paint-frame-border);
+      box-shadow:
+        0 0 0 1px var(--paint-frame-outline),
+        var(--frame-outer-shadow);
+      touch-action: none;
+      background: #fff;
+    }
+
+    #coloring-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      vertical-align: middle;
+      cursor: crosshair;
+    }
+
+    .coloring-lines {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: auto;
+      pointer-events: none;
+      user-select: none;
+      mix-blend-mode: multiply;
+    }
+
+    .coloring-caption {
+      margin-top: 0.75rem;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      .coloring-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .coloring-presets {
+        justify-content: flex-start;
+      }
+
+      .coloring-toolbar input[type="range"] {
+        max-width: none;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .coloring-page {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="site-nav-root"></div>
+  <script src="site-nav.js"></script>
+
+  <main class="coloring-page">
+    <div class="coloring-inner">
+      <p class="section-label">Coloring</p>
+      <h1>Color your picture</h1>
+      <p class="coloring-intro">
+        Pick a <strong>built-in picture</strong> from the drop-down — or upload your own line-art file (PNG, JPG, WebP…).
+        Use <strong>Fill</strong> inside white areas or <strong>Brush</strong> freely; Erase paints white again on your colors only.
+      </p>
+
+      <div class="coloring-root">
+        <div class="coloring-source-row" role="region" aria-label="Choose coloring picture">
+          <label>
+            Built-in worksheet
+            <select id="coloring-builtin-select" aria-label="Built-in worksheet (default)">
+              <option value="assets/coloring/axolotl-worksheet.png" selected>Axolotl &amp; boba tea</option>
+              <option value="assets/coloring/mushrooms-worksheet.png">Friendly mushrooms</option>
+              <option value="assets/coloring/unicorn-moon-worksheet.png">Unicorn &amp; moon</option>
+            </select>
+          </label>
+          <span class="upload-sep" aria-hidden="true">or upload</span>
+          <label>
+            Your file
+            <input type="file" id="coloring-upload" accept="image/*,.png,.jpg,.jpeg,.webp,.gif" aria-label="Upload your own coloring picture" />
+          </label>
+        </div>
+        <div class="coloring-toolbar" aria-label="Color and tools">
+          <div class="coloring-presets" id="coloring-presets" role="group" aria-label="Preset colors"></div>
+          <label>
+            Pick
+            <input type="color" id="coloring-custom" value="#e63946" title="Choose any color" />
+          </label>
+          <label>
+            Brush <span id="coloring-brush-label">16</span>px
+            <input type="range" id="coloring-brush" min="4" max="48" value="16" aria-label="Brush size" />
+          </label>
+          <div class="coloring-tools">
+            <button type="button" class="mode-on" id="coloring-tool-brush">Brush</button>
+            <button type="button" id="coloring-tool-fill">Fill</button>
+            <button type="button" id="coloring-tool-eraser">Eraser</button>
+            <button type="button" class="danger" id="coloring-clear">Clear colors</button>
+          </div>
+        </div>
+        <div class="coloring-stack" id="coloring-stack">
+          <canvas id="coloring-canvas" width="400" height="300" aria-label="Color underneath the outline"></canvas>
+          <p class="coloring-await-hint" id="coloring-await-hint">
+            Loading worksheet… If this stays blank, pick another built-in sheet or upload a picture.
+          </p>
+        </div>
+        <p class="coloring-caption">
+          Fill respects the black outlines (they stay on top). Tap <strong>Fill</strong> first, choose a swatch, then tap inside one closed white area — not on a line or watermark text.
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const canvas = document.getElementById("coloring-canvas");
+      const stack = document.getElementById("coloring-stack");
+      const presetsEl = document.getElementById("coloring-presets");
+      const hintEl = document.getElementById("coloring-await-hint");
+      const customInput = document.getElementById("coloring-custom");
+      const brushRange = document.getElementById("coloring-brush");
+      const brushLabel = document.getElementById("coloring-brush-label");
+      const btnBrush = document.getElementById("coloring-tool-brush");
+      const btnFill = document.getElementById("coloring-tool-fill");
+      const btnEraser = document.getElementById("coloring-tool-eraser");
+      const btnClear = document.getElementById("coloring-clear");
+      const uploadInput = document.getElementById("coloring-upload");
+      const builtinSelect = document.getElementById("coloring-builtin-select");
+      if (!canvas || !stack || !presetsEl || !hintEl || !builtinSelect || !btnBrush || !btnFill || !btnEraser || !btnClear)
+        return;
+
+      const ctx = canvas.getContext("2d");
+      let linesOverlay = null;
+      let uploadObjectUrl = null;
+      /** Cancels stale built-in fetch when user uploads or switches presets. */
+      let lineArtLoadGen = 0;
+      /** High-res raster for fill barriers (thin strokes vanish if we shrink to canvas in one shot). */
+      let lineMaskScratch = null;
+      let lineMaskScratchCtx = null;
+      let cachedLineBarrier = null;
+      let cachedLineBarrierKey = "";
+
+      function invalidateLineBarrierCache() {
+        cachedLineBarrier = null;
+        cachedLineBarrierKey = "";
+      }
+
+      function dilateInkBarrier4(barrier, w, h) {
+        const src = barrier;
+        const out = new Uint8Array(w * h);
+        for (let y = 0; y < h; y++) {
+          const row = y * w;
+          for (let x = 0; x < w; x++) {
+            const ix = row + x;
+            if (src[ix]) {
+              out[ix] = 1;
+              continue;
+            }
+            out[ix] =
+              (x > 0 && src[ix - 1]) ||
+              (x < w - 1 && src[ix + 1]) ||
+              (y > 0 && src[ix - w]) ||
+              (y < h - 1 && src[ix + w])
+                ? 1
+                : 0;
+          }
+        }
+        return out;
+      }
+
+      function barrierHitCount(b) {
+        let n = 0;
+        for (let i = 0; i < b.length; i++) if (b[i]) n++;
+        return n;
+      }
+
+      function buildBarrierFromHiRes(hiData, tw, th, w, h, mode) {
+        const barrier = new Uint8Array(w * h);
+        let mnLo;
+        let lumPair;
+        let edgeLum;
+        let edgeMx;
+        let darkLumMax;
+        if (mode === "strict") {
+          mnLo = 108;
+          lumPair = 205;
+          edgeLum = 175;
+          edgeMx = 185;
+          darkLumMax = 68;
+        } else if (mode === "loose") {
+          mnLo = 138;
+          lumPair = 228;
+          edgeLum = 195;
+          edgeMx = 208;
+          darkLumMax = 78;
+        } else {
+          mnLo = 125;
+          lumPair = 218;
+          edgeLum = 188;
+          edgeMx = 198;
+          darkLumMax = 68;
+        }
+
+        for (let ty = 0; ty < th; ty++) {
+          const rowOffset = ty * tw * 4;
+          const cy = Math.min(h - 1, (((ty + 0.5) / th) * h) | 0);
+          for (let tx = 0; tx < tw; tx++) {
+            const ti = rowOffset + tx * 4;
+            const rr = hiData[ti];
+            const gg = hiData[ti + 1];
+            const bb = hiData[ti + 2];
+            const lum = luminance(rr, gg, bb);
+            const mn = rr < gg ? (rr < bb ? rr : bb) : gg < bb ? gg : bb;
+            const mx = rr > gg ? (rr > bb ? rr : bb) : gg > bb ? gg : bb;
+            let ink = lum <= darkLumMax || (mn <= mnLo && lum <= lumPair);
+            if (!ink) ink = lum <= edgeLum && mx <= edgeMx;
+            if (!ink) continue;
+            const cx = Math.min(w - 1, (((tx + 0.5) / tw) * w) | 0);
+            barrier[cx + cy * w] = 1;
+          }
+        }
+        return barrier;
+      }
+
+      /** 1 per display px: project HR ink into cells; light dilation closes hairlines. */
+      function getLineArtBarrierMask(w, h) {
+        if (w < 1 || h < 1 || !linesOverlay || !linesOverlay.complete || linesOverlay.naturalWidth < 1)
+          return null;
+        const key =
+          String(linesOverlay.src || "") +
+          "|" +
+          w +
+          "x" +
+          h +
+          "|" +
+          linesOverlay.naturalWidth +
+          "x" +
+          linesOverlay.naturalHeight +
+          "|m4";
+        if (cachedLineBarrier && cachedLineBarrierKey === key && cachedLineBarrier.length === w * h)
+          return cachedLineBarrier;
+
+        const nw = linesOverlay.naturalWidth;
+        const nh = linesOverlay.naturalHeight;
+        const maxHrPixels = 4000000;
+        let tw = nw;
+        let th = nh;
+        if (tw * th > maxHrPixels) {
+          const shrink = Math.sqrt(maxHrPixels / (tw * th));
+          tw = Math.max(32, Math.floor(tw * shrink));
+          th = Math.max(32, Math.floor(th * shrink));
+        }
+
+        if (!lineMaskScratch) {
+          lineMaskScratch = document.createElement("canvas");
+          lineMaskScratchCtx = lineMaskScratch.getContext("2d", { willReadFrequently: true });
+        }
+        const mx = lineMaskScratchCtx;
+        lineMaskScratch.width = tw;
+        lineMaskScratch.height = th;
+        mx.setTransform(1, 0, 0, 1, 0, 0);
+        mx.imageSmoothingEnabled = false;
+        if (mx.imageSmoothingQuality !== undefined) mx.imageSmoothingQuality = "low";
+        mx.fillStyle = "#ffffff";
+        mx.fillRect(0, 0, tw, th);
+
+        let hiData;
+        try {
+          mx.drawImage(linesOverlay, 0, 0, tw, th);
+          hiData = mx.getImageData(0, 0, tw, th).data;
+        } catch (err) {
+          return null;
+        }
+
+        /** Do NOT use lum<=210 alone — uniform light-gray JPEG “paper” (~208) marks the whole sheet as ink and every Fill tap exits on seed. */
+        let barrier = buildBarrierFromHiRes(hiData, tw, th, w, h, "normal");
+        let dil = dilateInkBarrier4(barrier, w, h);
+        let cells = w * h;
+        let hits = barrierHitCount(dil);
+        if (hits > cells * 0.38) {
+          barrier = buildBarrierFromHiRes(hiData, tw, th, w, h, "strict");
+          dil = dilateInkBarrier4(barrier, w, h);
+          hits = barrierHitCount(dil);
+        }
+        if (hits < Math.min(cells * 0.0008, 32)) {
+          barrier = buildBarrierFromHiRes(hiData, tw, th, w, h, "loose");
+          dil = dilateInkBarrier4(barrier, w, h);
+          hits = barrierHitCount(dil);
+          if (hits > cells * 0.42) {
+            barrier = buildBarrierFromHiRes(hiData, tw, th, w, h, "strict");
+            dil = dilateInkBarrier4(barrier, w, h);
+          }
+        }
+
+        cachedLineBarrier = dil;
+        cachedLineBarrierKey = key;
+        return dil;
+      }
+      let tool = "brush";
+      let brushColor = (customInput && customInput.value) || "#e63946";
+      let drawing = false;
+      const PRESETS = [
+        "#e63946",
+        "#f4a261",
+        "#ffd166",
+        "#06d6a0",
+        "#118ab2",
+        "#073b4c",
+        "#8338ec",
+        "#ff006e",
+        "#fb5607",
+        "#ffbe0b",
+        "#8ac926",
+        "#6d6875",
+      ];
+
+      PRESETS.forEach(function (hex) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "color-swatch";
+        b.style.backgroundColor = hex;
+        b.dataset.color = hex;
+        b.title = hex;
+        b.setAttribute("aria-checked", hex === brushColor.toLowerCase() ? "true" : "false");
+        b.addEventListener("click", function () {
+          brushColor = hex;
+          syncSwatchSelection(hex);
+          if (customInput) customInput.value = hex;
+          tool = tool === "eraser" ? "brush" : tool;
+          setTool(tool);
+        });
+        presetsEl.appendChild(b);
+      });
+
+      function syncSwatchSelection(hex) {
+        const h = hex.toLowerCase();
+        presetsEl.querySelectorAll(".color-swatch").forEach(function (sw) {
+          sw.setAttribute("aria-checked", (sw.dataset.color || "").toLowerCase() === h ? "true" : "false");
+        });
+      }
+
+      function setBrushCursor() {
+        canvas.style.cursor = tool === "fill" ? "cell" : "crosshair";
+      }
+
+      function setTool(next) {
+        tool = next;
+        btnBrush.classList.toggle("mode-on", tool === "brush");
+        btnFill.classList.toggle("mode-on", tool === "fill");
+        btnEraser.classList.toggle("mode-on", tool === "eraser");
+        setBrushCursor();
+      }
+
+      function clearCanvasWhite() {
+        ctx.globalCompositeOperation = "source-over";
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      function layoutDefaultCanvas() {
+        const bounds = stack.parentElement
+          ? Math.min(920, stack.parentElement.getBoundingClientRect().width || 920)
+          : 920;
+        const cw = Math.round(Math.max(280, bounds));
+        const ch = Math.round((cw * 3) / 4);
+        canvas.width = Math.max(2, cw);
+        canvas.height = Math.max(2, ch);
+        stack.style.aspectRatio = cw + " / " + ch;
+        clearCanvasWhite();
+        invalidateLineBarrierCache();
+      }
+
+      function layoutCanvasToOverlay() {
+        if (!linesOverlay) return layoutDefaultCanvas();
+        const nw = linesOverlay.naturalWidth;
+        const nh = linesOverlay.naturalHeight;
+        if (!nw || !nh) return layoutDefaultCanvas();
+        const bounds = stack.parentElement
+          ? Math.min(920, stack.parentElement.getBoundingClientRect().width || 920)
+          : 920;
+        const scale = nw > bounds ? bounds / nw : 1;
+        const cw = Math.max(2, Math.round(nw * scale));
+        const ch = Math.max(2, Math.round(nh * scale));
+        canvas.width = cw;
+        canvas.height = ch;
+        stack.style.aspectRatio = cw + " / " + ch;
+        clearCanvasWhite();
+        invalidateLineBarrierCache();
+      }
+
+      function revokeUploadUrl() {
+        if (uploadObjectUrl) {
+          URL.revokeObjectURL(uploadObjectUrl);
+          uploadObjectUrl = null;
+        }
+      }
+
+      function teardownLinesOverlay() {
+        lineArtLoadGen += 1;
+        invalidateLineBarrierCache();
+        revokeUploadUrl();
+        if (linesOverlay && linesOverlay.parentNode === stack) {
+          stack.removeChild(linesOverlay);
+        }
+        linesOverlay = null;
+        if (hintEl) hintEl.classList.remove("is-hidden");
+        layoutDefaultCanvas();
+        if (uploadInput) uploadInput.value = "";
+      }
+
+      function loadBuiltInPreset(path) {
+        if (!path || !builtinSelect) return;
+        lineArtLoadGen += 1;
+        var gen = lineArtLoadGen;
+        revokeUploadUrl();
+        if (uploadInput) uploadInput.value = "";
+        var el = ensureLinesOverlay();
+        if (typeof fetch === "function") {
+          fetch(path)
+            .then(function (res) {
+              if (gen !== lineArtLoadGen) return Promise.reject({ stale: true });
+              if (!res.ok) throw new Error("preset");
+              return res.blob();
+            })
+            .then(function (blob) {
+              if (gen !== lineArtLoadGen) return;
+              if (!linesOverlay || linesOverlay !== el) return;
+              uploadObjectUrl = URL.createObjectURL(blob);
+              el.src = uploadObjectUrl;
+            })
+            .catch(function (reason) {
+              if (reason && reason.stale) return;
+              if (gen !== lineArtLoadGen) return;
+              if (!linesOverlay || linesOverlay !== el) return;
+              el.src = path;
+            });
+          return;
+        }
+        el.src = path;
+      }
+
+      function ensureLinesOverlay() {
+        if (linesOverlay) return linesOverlay;
+        const img = document.createElement("img");
+        img.id = "coloring-lines";
+        img.className = "coloring-lines";
+        img.alt = "";
+        img.decoding = "async";
+        img.addEventListener("load", function () {
+          layoutCanvasToOverlay();
+          hintEl.classList.add("is-hidden");
+        });
+        img.addEventListener("error", function () {
+          teardownLinesOverlay();
+        });
+        stack.appendChild(img);
+        linesOverlay = img;
+        return img;
+      }
+
+      function loadUploadedImage(file) {
+        if (!file) return;
+        const mimeOk = /^image\//.test(file.type || "");
+        const extOk = /\.(png|jpe?g|webp|gif|bmp)$/i.test(file.name || "");
+        if (!mimeOk && !extOk) return;
+        lineArtLoadGen += 1;
+        const newUrl = URL.createObjectURL(file);
+        const el = ensureLinesOverlay();
+        const prevUrl = uploadObjectUrl;
+        uploadObjectUrl = newUrl;
+        el.src = newUrl;
+        if (prevUrl) URL.revokeObjectURL(prevUrl);
+      }
+
+      if (uploadInput) {
+        uploadInput.addEventListener("change", function () {
+          const file = uploadInput.files && uploadInput.files[0];
+          if (!file) return;
+          loadUploadedImage(file);
+        });
+      }
+
+      builtinSelect.addEventListener("change", function () {
+        loadBuiltInPreset(builtinSelect.value);
+      });
+
+      if (customInput) {
+        customInput.addEventListener("input", function () {
+          brushColor = customInput.value;
+          syncSwatchSelection(brushColor);
+          if (tool === "eraser") {
+            tool = "brush";
+            setTool("brush");
+          }
+        });
+      }
+
+      if (brushRange && brushLabel) {
+        brushRange.addEventListener("input", function () {
+          brushLabel.textContent = brushRange.value;
+        });
+      }
+
+      btnBrush.addEventListener("click", function () {
+        setTool("brush");
+      });
+      btnFill.addEventListener("click", function () {
+        setTool("fill");
+      });
+      btnEraser.addEventListener("click", function () {
+        setTool("eraser");
+      });
+
+      btnClear.addEventListener("click", clearCanvasWhite);
+
+      function luminance(r, g, b) {
+        return (0.299 * r + 0.587 * g + 0.114 * b) | 0;
+      }
+
+      function hexToRgb(hex) {
+        const h = hex.replace("#", "").trim();
+        const v =
+          h.length === 3
+            ? parseInt(h[0] + h[0] + h[1] + h[1] + h[2] + h[2], 16)
+            : parseInt(h.length === 6 ? h : h.slice(-6), 16);
+        if (Number.isNaN(v))
+          return { r: 255, g: 255, b: 255 };
+        return { r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255 };
+      }
+
+      function rgbDistSq(aR, aG, aB, bR, bG, bB) {
+        const dr = aR - bR;
+        const dg = aG - bG;
+        const db = aB - bB;
+        return dr * dr + dg * dg + db * db;
+      }
+
+      function floodFill(px, py) {
+        const w = canvas.width;
+        const h = canvas.height;
+        if (px < 0 || py < 0 || px >= w || py >= h) return;
+        const barrierNullable = getLineArtBarrierMask(w, h);
+
+        /** Pixels darker than this on the *paint canvas* still count as “ink” safety (brush under lines). */
+        const PAINT_DARK_CAP = 95;
+        const SEED_MATCH_SQ = 96 * 96;
+        const FILLED_SQ = 14 * 14;
+
+        function lineIsInk(ix) {
+          if (!barrierNullable) return false;
+          return barrierNullable[ix] === 1;
+        }
+
+        function idxXY(x, y) {
+          return y * w + x;
+        }
+
+        const seedI = idxXY(px | 0, py | 0);
+        if (lineIsInk(seedI)) return;
+
+        const img = ctx.getImageData(0, 0, w, h);
+        const data = img.data;
+        const si = seedI * 4;
+        const sr = data[si];
+        const sg = data[si + 1];
+        const sb = data[si + 2];
+        const seedLum = luminance(sr, sg, sb);
+        if (seedLum <= PAINT_DARK_CAP) return;
+
+        let fillRgb;
+        if (tool === "eraser") fillRgb = { r: 255, g: 255, b: 255 };
+        else fillRgb = hexToRgb(brushColor);
+        if (rgbDistSq(sr, sg, sb, fillRgb.r, fillRgb.g, fillRgb.b) <= FILLED_SQ) return;
+
+        function samePaintRegion(r, g, b) {
+          const L = luminance(r, g, b);
+          return L > PAINT_DARK_CAP && rgbDistSq(r, g, b, sr, sg, sb) <= SEED_MATCH_SQ;
+        }
+
+        const stackPx = [];
+        const seen = new Uint8Array(w * h);
+        const sx = px | 0;
+        const sy = py | 0;
+        stackPx.push([sx, sy]);
+        seen[seedI] = 1;
+        let safety = Math.min(w * h * 2, 1250000);
+        while (stackPx.length && safety-- > 0) {
+          const p = stackPx.pop();
+          const x = p[0];
+          const y = p[1];
+          const ix = idxXY(x, y);
+          if (lineIsInk(ix)) continue;
+          const o = ix * 4;
+          const r = data[o];
+          const gg = data[o + 1];
+          const bb = data[o + 2];
+          if (!samePaintRegion(r, gg, bb)) continue;
+          data[o] = fillRgb.r;
+          data[o + 1] = fillRgb.g;
+          data[o + 2] = fillRgb.b;
+          data[o + 3] = 255;
+          const neigh = [
+            [x + 1, y],
+            [x - 1, y],
+            [x, y + 1],
+            [x, y - 1],
+          ];
+          for (let n = 0; n < 4; n++) {
+            const nx = neigh[n][0];
+            const ny = neigh[n][1];
+            if (nx < 0 || nx >= w || ny < 0 || ny >= h) continue;
+            const ni = idxXY(nx, ny);
+            if (seen[ni]) continue;
+            if (lineIsInk(ni)) continue;
+            seen[ni] = 1;
+            stackPx.push([nx, ny]);
+          }
+        }
+        ctx.putImageData(img, 0, 0);
+      }
+
+      function canvasCoords(ev) {
+        const rect = canvas.getBoundingClientRect();
+        const p = ev.touches ? ev.touches[0] : ev;
+        const sx = canvas.width / rect.width;
+        const sy = canvas.height / rect.height;
+        return {
+          x: ((p.clientX - rect.left) * sx + 1e-4) >> 0,
+          y: ((p.clientY - rect.top) * sy + 1e-4) >> 0,
+        };
+      }
+
+      canvas.addEventListener(
+        "pointerdown",
+        function (e) {
+          if (tool === "fill") {
+            e.preventDefault();
+            try {
+              canvas.setPointerCapture(e.pointerId);
+            } catch (err) {}
+            const { x, y } = canvasCoords(e);
+            floodFill(x, y);
+            return;
+          }
+          drawing = true;
+          try {
+            canvas.setPointerCapture(e.pointerId);
+          } catch (err) {}
+          applyStrokeProps();
+          const { x, y } = canvasCoords(e);
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+        },
+        { passive: false }
+      );
+
+      canvas.addEventListener("pointermove", function (e) {
+        if (tool === "fill" || !drawing) return;
+        if (!(e.buttons & 1)) return;
+        const { x, y } = canvasCoords(e);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+      });
+
+      canvas.addEventListener("pointerup", function () {
+        drawing = false;
+        ctx.closePath();
+      });
+
+      canvas.addEventListener("pointercancel", function () {
+        drawing = false;
+      });
+
+      function applyStrokeProps() {
+        ctx.globalCompositeOperation = "source-over";
+        const size = brushRange ? parseInt(brushRange.value, 10) || 16 : 16;
+        ctx.lineWidth = size;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        if (tool === "eraser") ctx.strokeStyle = "#ffffff";
+        else ctx.strokeStyle = brushColor;
+      }
+
+      loadBuiltInPreset(builtinSelect.value);
+
+      syncSwatchSelection((brushColor || "").toLowerCase());
+      setBrushCursor();
+    })();
+  </script>
+  <script src="theme.js"></script>
+  <script src="clocks.js"></script>
+</body>
+</html>

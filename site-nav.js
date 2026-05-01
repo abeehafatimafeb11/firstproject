@@ -4,6 +4,7 @@
     { id: "games", href: "games.html", label: "Games" },
     { id: "calculate", href: "calculate.html", label: "Calculator" },
     { id: "paint", href: "paint.html", label: "Paint" },
+    { id: "coloring", href: "coloring.html", label: "Coloring" },
     { id: "about", href: "about.html", label: "About Me" },
   ];
 

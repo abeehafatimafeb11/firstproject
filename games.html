@@ -149,6 +149,48 @@
       margin-bottom: 0;
     }
 
+    .brain-timer-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 0.85rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brain-timer-row select {
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 0.4rem 0.65rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text);
+    }
+
+    .brain-timer-row #brain-start-btn {
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.45rem 1.1rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), #818cf8);
+      color: var(--primary-pill-fg);
+      transition: filter 0.15s;
+    }
+
+    .brain-timer-row #brain-start-btn:hover:not(:disabled) {
+      filter: brightness(1.08);
+    }
+
+    .brain-timer-row #brain-start-btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
     .brain-root {
       padding: 1.25rem 1.35rem;
       background: var(--surface-card);
@@ -929,11 +971,26 @@
         <div class="panel-head">
           <h2>Brain test — tricky puzzles</h2>
           <p class="hint">
-            Choose the best answer — there are 10 puzzles. After the last one you’ll see your score:
-            <strong>50% or more is a pass</strong>; below 50% is a fail.
+            Pick a time limit per question (or <strong>None</strong>), then press <strong>Start</strong> to begin.
+            There are 10 puzzles — more than <strong>5 correct</strong> wins. If you score <strong>under 5</strong>
+            correct (or exactly 5), it says “oops try better next time.” Use <strong>Shuffle &amp; play again</strong> for a new round.
           </p>
         </div>
         <div class="brain-root">
+          <div class="brain-timer-row">
+            <label class="wordsearch-timer-label" for="brain-timer-select">Timer per question</label>
+            <select id="brain-timer-select" aria-label="Seconds allowed per puzzle">
+              <option value="2">2 sec</option>
+              <option value="5">5 sec</option>
+              <option value="10">10 sec</option>
+              <option value="20">20 sec</option>
+              <option value="30" selected>30 sec</option>
+              <option value="40">40 sec</option>
+              <option value="none">None</option>
+            </select>
+            <span class="wordsearch-timer-display" id="brain-timer-display" aria-live="polite">30s</span>
+            <button type="button" id="brain-start-btn" aria-label="Start quiz and timer">Start</button>
+          </div>
           <p class="brain-progress" id="brain-progress"></p>
           <p class="brain-q" id="brain-q"></p>
           <div class="brain-choices" id="brain-choices"></div>
@@ -1570,12 +1627,75 @@
       const nextBtn = document.getElementById("brain-next");
       const restartBtn = document.getElementById("brain-restart");
       const summaryEl = document.getElementById("brain-summary");
+      const brainTimerSelect = document.getElementById("brain-timer-select");
+      const brainTimerDisplay = document.getElementById("brain-timer-display");
+      const brainStartBtn = document.getElementById("brain-start-btn");
 
       const BRAIN_TOTAL = 10;
       let order = [];
       let step = 0;
       let locked = false;
       let correctCount = 0;
+      let brainTimerId = null;
+      let brainSecondsLeft = 0;
+      let brainResumeLeft = null;
+      let brainSessionStarted = false;
+
+      function clearBrainTimer() {
+        if (brainTimerId !== null) {
+          clearInterval(brainTimerId);
+          brainTimerId = null;
+        }
+      }
+
+      function brainTimerSecsOption() {
+        if (!brainTimerSelect || brainTimerSelect.value === "none") return null;
+        const n = parseInt(brainTimerSelect.value, 10);
+        return Number.isFinite(n) && n > 0 ? n : null;
+      }
+
+      function updateBrainIdleTimerDisplay() {
+        if (!brainTimerDisplay) return;
+        const dur = brainTimerSecsOption();
+        brainTimerDisplay.textContent = dur === null ? "—" : dur + "s";
+      }
+
+      function startBrainTimerIfNeeded(puzzle) {
+        clearBrainTimer();
+        if (!brainTimerDisplay || !brainTimerSelect) return;
+        var brainPanel = document.getElementById("panel-brain");
+        if (brainPanel && brainPanel.hidden) {
+          updateBrainIdleTimerDisplay();
+          return;
+        }
+        if (!brainSessionStarted) {
+          updateBrainIdleTimerDisplay();
+          return;
+        }
+        const dur = brainTimerSecsOption();
+        if (dur === null) {
+          brainResumeLeft = null;
+          updateBrainIdleTimerDisplay();
+          return;
+        }
+        if (brainResumeLeft !== null) {
+          brainSecondsLeft = brainResumeLeft;
+          brainResumeLeft = null;
+        } else {
+          brainSecondsLeft = dur;
+        }
+        brainTimerDisplay.textContent = brainSecondsLeft + "s";
+        brainTimerId = window.setInterval(function () {
+          brainSecondsLeft -= 1;
+          if (brainSecondsLeft <= 0) {
+            clearBrainTimer();
+            brainTimerDisplay.textContent = "0s";
+            revealAndAdvance(puzzle, null, true);
+            return;
+          }
+          brainTimerDisplay.textContent = brainSecondsLeft + "s";
+        }, 1000);
+      }
 
       function shuffleOrder() {
         order = BRAIN_PUZZLES.map(function (_, i) {
@@ -1590,7 +1710,54 @@
         order = order.slice(0, BRAIN_TOTAL);
       }
 
+      function revealAndAdvance(puzzle, choiceIdx, timedOut) {
+        if (locked) return;
+        locked = true;
+        brainResumeLeft = null;
+        clearBrainTimer();
+        const ok = !timedOut && choiceIdx === puzzle.correct;
+        if (ok) correctCount++;
+
+        const buttons = choicesEl.querySelectorAll("button");
+        for (let i = 0; i < buttons.length; i++) {
+          buttons[i].disabled = true;
+          if (i === puzzle.correct) buttons[i].classList.add("correct-pick");
+          else if (!timedOut && i === choiceIdx && !ok) buttons[i].classList.add("wrong-pick");
+        }
+
+        feedbackEl.classList.remove("ok", "bad");
+        let msg = puzzle.explain;
+        if (timedOut) msg = "Time’s up. " + msg;
+        else if (ok) msg = "Correct! " + msg;
+        else msg = "Not quite. " + msg;
+        feedbackEl.textContent = msg;
+        feedbackEl.classList.add(ok ? "ok" : "bad");
+
+        updateBrainIdleTimerDisplay();
+
+        const isLast = step >= order.length - 1;
+        if (!isLast) {
+          nextBtn.hidden = false;
+        } else {
+          const total = BRAIN_TOTAL;
+          const pct = Math.round((correctCount / total) * 100);
+          const won = correctCount > 5;
+          // Win: strictly more than 5 correct. Otherwise (fewer than 5, or exactly 5): oops.
+          var summaryNote =
+            won ? " wooooooohooooo! you won" : " oops try better next time";
+          summaryEl.hidden = false;
+          summaryEl.className = "brain-summary " + (won ? "pass" : "fail");
+          const strong = document.createElement("strong");
+          strong.textContent =
+            "Final score: " + correctCount + " / " + total + " (" + pct + "%)";
+          summaryEl.appendChild(strong);
+          summaryEl.appendChild(document.createTextNode(summaryNote));
+        }
+      }
+
       function showStep() {
+        brainResumeLeft = null;
+        clearBrainTimer();
         locked = false;
         feedbackEl.textContent = "";
         feedbackEl.classList.remove("ok", "bad");
@@ -1608,51 +1775,24 @@
           btn.type = "button";
           btn.textContent = label;
           btn.addEventListener("click", function () {
-            onPick(i, puzzle);
+            revealAndAdvance(puzzle, i, false);
           });
           choicesEl.appendChild(btn);
         });
-      }
-
-      function onPick(choiceIdx, puzzle) {
-        if (locked) return;
-        locked = true;
-        const ok = choiceIdx === puzzle.correct;
-        if (ok) correctCount++;
-        const buttons = choicesEl.querySelectorAll("button");
-        for (let i = 0; i < buttons.length; i++) {
-          buttons[i].disabled = true;
-          if (i === puzzle.correct) buttons[i].classList.add("correct-pick");
-          else if (i === choiceIdx && !ok) buttons[i].classList.add("wrong-pick");
-        }
-        feedbackEl.classList.remove("ok", "bad");
-        if (ok) {
-          feedbackEl.textContent = "Correct! " + puzzle.explain;
-          feedbackEl.classList.add("ok");
+        if (!brainSessionStarted) {
+          choicesEl.querySelectorAll("button").forEach(function (b) {
+            b.disabled = true;
+          });
+          updateBrainIdleTimerDisplay();
+          if (brainStartBtn) brainStartBtn.disabled = false;
         } else {
-          feedbackEl.textContent = "Not quite. " + puzzle.explain;
-          feedbackEl.classList.add("bad");
-        }
-        const isLast = step >= order.length - 1;
-        if (!isLast) {
-          nextBtn.hidden = false;
-        } else {
-          const total = BRAIN_TOTAL;
-          const pct = Math.round((correctCount / total) * 100);
-          const passed = pct >= 50;
-          summaryEl.hidden = false;
-          summaryEl.className = "brain-summary " + (passed ? "pass" : "fail");
-          const strong = document.createElement("strong");
-          strong.textContent =
-            "Final score: " + correctCount + " / " + total + " (" + pct + "%)";
-          summaryEl.appendChild(strong);
-          summaryEl.appendChild(
-            document.createTextNode(
-              passed
-                ? "Pass — you needed at least 50%."
-                : "Fail — your score is under 50%."
-            )
-          );
+          if (brainStartBtn) brainStartBtn.disabled = true;
+          startBrainTimerIfNeeded(puzzle);
+          if (brainTimerSecsOption() === null) {
+            choicesEl.querySelectorAll("button").forEach(function (b) {
+              b.disabled = false;
+            });
+          }
         }
       }
 
@@ -1665,7 +1805,59 @@
         shuffleOrder();
         step = 0;
         correctCount = 0;
+        brainSessionStarted = false;
         showStep();
+      });
+
+      if (brainStartBtn) {
+        brainStartBtn.addEventListener("click", function () {
+          if (locked) return;
+          brainSessionStarted = true;
+          brainResumeLeft = null;
+          brainStartBtn.disabled = true;
+          choicesEl.querySelectorAll("button").forEach(function (b) {
+            b.disabled = false;
+          });
+          var idx = order[step];
+          startBrainTimerIfNeeded(BRAIN_PUZZLES[idx]);
+        });
+      }
+
+      if (brainTimerSelect) {
+        brainTimerSelect.addEventListener("change", function () {
+          if (locked) {
+            updateBrainIdleTimerDisplay();
+            return;
+          }
+          brainResumeLeft = null;
+          if (!brainSessionStarted) {
+            updateBrainIdleTimerDisplay();
+            return;
+          }
+          var idxNow = order[step];
+          startBrainTimerIfNeeded(BRAIN_PUZZLES[idxNow]);
+        });
+      }
+
+      window.addEventListener("games-tab-change", function (ev) {
+        var tab = ev.detail && ev.detail.tab;
+        if (tab !== "brain") {
+          if (
+            brainSessionStarted &&
+            brainTimerId !== null &&
+            !locked &&
+            brainTimerSecsOption() !== null
+          ) {
+            brainResumeLeft = brainSecondsLeft;
+            clearBrainTimer();
+            if (brainTimerDisplay) brainTimerDisplay.textContent = brainResumeLeft + "s";
+          }
+          return;
+        }
+        if (!locked && brainSessionStarted && brainTimerSecsOption() !== null) {
+          var idxTab = order[step];
+          startBrainTimerIfNeeded(BRAIN_PUZZLES[idxTab]);
+        }
       });
 
       shuffleOrder();
