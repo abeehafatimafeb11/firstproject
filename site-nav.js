@@ -33,9 +33,10 @@
     );
   }).join("");
 
+  /* Home stays in the overflow menu on every page; hide the extra desktop Home link only on index. */
   var desktopHome =
     current === "index"
-      ? '<li><a class="primary" href="index.html" aria-current="page">Home</a></li>'
+      ? ""
       : '<li><a href="index.html">Home</a></li>';
 
   mount.outerHTML =
@@ -52,9 +53,7 @@
     '<a class="logo" href="index.html">Abeeha <span>Fatima</span></a>' +
     "</div>" +
     '<nav class="nav-actions" aria-label="Site menu">' +
-    '<ul class="nav-links">' +
-    desktopHome +
-    "</ul>" +
+    (desktopHome ? '<ul class="nav-links">' + desktopHome + "</ul>" : "") +
     '<button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle light or dark theme" title="Theme">' +
     SUN_ICON +
     MOON_ICON +
