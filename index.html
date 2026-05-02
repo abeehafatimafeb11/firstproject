@@ -106,11 +106,95 @@
       background: var(--frame-bg);
     }
 
-    .frame img {
+    .hero-slider {
+      position: relative;
+    }
+
+    .hero-slider .hero-slides {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .hero-slide {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: contain;
       display: block;
+      opacity: 0;
+      transition: opacity 0.9s ease;
+      pointer-events: none;
+    }
+
+    .hero-slide.is-active {
+      opacity: 1;
+      z-index: 1;
+    }
+
+    .hero-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.75rem;
+      height: 2.75rem;
+      min-width: 44px;
+      min-height: 44px;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    }
+
+    .hero-arrow svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .hero-arrow:hover {
+      background: var(--nav-link-hover-bg);
+      color: var(--text);
+    }
+
+    .hero-arrow:active {
+      transform: translateY(-50%) scale(0.96);
+    }
+
+    .hero-arrow:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .hero-arrow-prev {
+      left: clamp(0.5rem, 2vw, 0.85rem);
+    }
+
+    .hero-arrow-next {
+      right: clamp(0.5rem, 2vw, 0.85rem);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-slide {
+        transition-duration: 0.01ms;
+      }
+
+      .hero-arrow {
+        transition-duration: 0.01ms;
+      }
+
+      .hero-arrow:active {
+        transform: translateY(-50%);
+      }
     }
   </style>
 </head>
@@ -120,16 +204,151 @@
 
   <div class="page-center">
     <h1 class="visually-hidden">Abeeha Fatima — personal website of Abeeha</h1>
-    <main class="frame" role="main">
-      <img
-        src="abeeha-hero.png"
-        alt="Illustration of Abeeha coding at a desk with monitors"
-        width="1024"
-        height="682"
-        loading="eager"
-      />
+    <main class="frame hero-slider">
+      <div class="hero-slides" id="hero-carousel-slides">
+        <img
+          class="hero-slide is-active"
+          src="assets/hero/slide-01-software-engineer.png"
+          alt="Illustration — Software Engineer: coding at a desk with monitors and tech icons"
+          width="1024"
+          height="682"
+          loading="eager"
+          decoding="async"
+          fetchpriority="high"
+        />
+        <img
+          class="hero-slide"
+          src="assets/hero/slide-02-ai-agent.png"
+          alt="Illustration — Talking to an AI assistant at a laptop with a hologram robot"
+          width="1024"
+          height="682"
+          loading="lazy"
+          decoding="async"
+          aria-hidden="true"
+        />
+        <img
+          class="hero-slide"
+          src="assets/hero/slide-03-coding-ai.png"
+          alt="Illustration — Coding with AI: editor with an AI suggestion panel"
+          width="1024"
+          height="682"
+          loading="lazy"
+          decoding="async"
+          aria-hidden="true"
+        />
+        <img
+          class="hero-slide"
+          src="assets/hero/slide-04-designing.png"
+          alt="Illustration — Designing a solution: login service flow on a monitor"
+          width="1024"
+          height="682"
+          loading="lazy"
+          decoding="async"
+          aria-hidden="true"
+        />
+        <img
+          class="hero-slide"
+          src="assets/hero/slide-05-testing.png"
+          alt="Illustration — Testing and results: passing test cases and API response"
+          width="1024"
+          height="682"
+          loading="lazy"
+          decoding="async"
+          aria-hidden="true"
+        />
+      </div>
+      <button
+        type="button"
+        class="hero-arrow hero-arrow-prev"
+        id="hero-carousel-prev"
+        aria-controls="hero-carousel-slides"
+        aria-label="Previous illustration"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="hero-arrow hero-arrow-next"
+        id="hero-carousel-next"
+        aria-controls="hero-carousel-slides"
+        aria-label="Next illustration"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6" />
+        </svg>
+      </button>
     </main>
   </div>
+  <script>
+    (function () {
+      var slides = document.querySelectorAll(".hero-slide");
+      var prevBtn = document.getElementById("hero-carousel-prev");
+      var nextBtn = document.getElementById("hero-carousel-next");
+      if (!slides.length) return;
+
+      var autoplayMs = 5000;
+      var reducedMotion =
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var timerId = null;
+
+      var index = 0;
+
+      function setActive(nextIndex) {
+        slides.forEach(function (img, j) {
+          var on = j === nextIndex;
+          img.classList.toggle("is-active", on);
+          img.setAttribute("aria-hidden", on ? "false" : "true");
+        });
+      }
+
+      function applyIndex(nextIndex) {
+        index = nextIndex;
+        setActive(index);
+      }
+
+      function goNext() {
+        applyIndex((index + 1) % slides.length);
+      }
+
+      function goPrev() {
+        applyIndex((index - 1 + slides.length) % slides.length);
+      }
+
+      function restartAutoplay() {
+        if (reducedMotion) return;
+        if (timerId !== null) {
+          window.clearInterval(timerId);
+        }
+        timerId = window.setInterval(goNext, autoplayMs);
+      }
+
+      function onManualNav(goForward) {
+        if (goForward) {
+          goNext();
+        } else {
+          goPrev();
+        }
+        restartAutoplay();
+      }
+
+      if (prevBtn) {
+        prevBtn.addEventListener("click", function () {
+          onManualNav(false);
+        });
+      }
+      if (nextBtn) {
+        nextBtn.addEventListener("click", function () {
+          onManualNav(true);
+        });
+      }
+
+      setActive(0);
+      restartAutoplay();
+    })();
+  </script>
   <script src="theme.js"></script>
   <script src="clocks.js"></script>
 </body>
