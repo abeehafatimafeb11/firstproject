@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en" data-nav-current="stories">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stories — Abeeha Fatima</title>
+  <meta name="description" content="Stories and reading PDFs — Abeeha Fatima, abeehafatima.me." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://abeehafatima.me/stories.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://abeehafatima.me/stories.html" />
+  <meta property="og:title" content="Stories — Abeeha Fatima" />
+  <meta property="og:description" content="Story PDFs to read — Abeeha Fatima on abeehafatima.me." />
+  <meta property="og:site_name" content="Abeeha Fatima" />
+  <script>
+    (function () {
+      var k = "abeeha-theme";
+      var t = null;
+      try {
+        t = localStorage.getItem(k);
+      } catch (e) {}
+      if (t !== "light" && t !== "dark") {
+        t = "dark";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+  <link rel="stylesheet" href="theme.css" />
+  <link rel="stylesheet" href="clocks.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .stories-wrap {
+      padding: clamp(3rem, 8vw, 6rem) clamp(1.25rem, 4vw, 3rem);
+      background:
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-elevated) 50%, var(--bg) 100%);
+      min-height: calc(100vh - var(--nav-h) - 80px);
+    }
+
+    .stories-inner {
+      max-width: min(920px, 100%);
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .stories-wrap h1 {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+
+    .stories-intro {
+      color: var(--text-muted);
+      margin-bottom: 1.75rem;
+      font-size: 1.05rem;
+    }
+
+    .story-picker {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .story-pick {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.2rem;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      padding: 1.25rem 1.35rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--key-bg);
+      font: inherit;
+      color: inherit;
+      box-shadow:
+        var(--frame-outer-shadow),
+        inset 0 1px 0 var(--inset-highlight);
+      transition:
+        border-color 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+    }
+
+    .story-pick:hover {
+      border-color: var(--accent-soft);
+      transform: translateY(-1px);
+    }
+
+    .story-pick:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .story-pick.is-active {
+      border-color: var(--accent);
+      box-shadow:
+        0 0 0 1px var(--accent-soft),
+        var(--frame-outer-shadow),
+        inset 0 1px 0 var(--inset-highlight);
+    }
+
+    .story-pick-title {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .story-pick-sub {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .story-viewer {
+      scroll-margin-top: calc(var(--nav-h) + 1rem);
+    }
+
+    .story-viewer[hidden] {
+      display: none;
+    }
+
+    .story-viewer-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+    }
+
+    .story-heading {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(1.15rem, 2.8vw, 1.35rem);
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.85rem;
+    }
+
+    .story-frame-wrap {
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--frame-bg);
+      box-shadow:
+        var(--frame-outer-shadow),
+        inset 0 1px 0 var(--inset-highlight);
+    }
+
+    .story-iframe {
+      display: block;
+      width: 100%;
+      height: 75vh;
+      min-height: 420px;
+      max-height: 880px;
+      border: 0;
+      background: var(--frame-bg);
+    }
+
+    .story-fallback {
+      margin-top: 0.65rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .story-fallback a {
+      color: var(--accent);
+      font-weight: 600;
+      text-underline-offset: 0.15em;
+    }
+
+    .story-fallback a:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 3px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .story-pick {
+        transition-duration: 0.01ms;
+      }
+
+      .story-pick:hover {
+        transform: none;
+      }
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1.25rem 2.5rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div id="site-nav-root"></div>
+  <script src="site-nav.js"></script>
+
+  <main>
+    <section class="stories-wrap" aria-labelledby="stories-title">
+      <div class="stories-inner">
+        <p class="section-label">Reading</p>
+        <h1 id="stories-title">Stories</h1>
+        <p class="stories-intro">
+          Tap a story name below — then it opens here on the page (same tab).
+        </p>
+        <ul class="story-picker" role="list">
+          <li>
+            <button
+              type="button"
+              class="story-pick"
+              aria-pressed="false"
+              aria-controls="story-viewer-panel"
+              data-story-src="assets/stories/year-1.pdf"
+              data-story-label="Year 1 story"
+            >
+              <span class="story-pick-title">Year 1 story</span>
+              <span class="story-pick-sub">Year 1</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              class="story-pick"
+              aria-pressed="false"
+              aria-controls="story-viewer-panel"
+              data-story-src="assets/stories/little-red-riding-hood-yr2.pdf"
+              data-story-label="Little Red Riding Hood"
+            >
+              <span class="story-pick-title">Little Red Riding Hood</span>
+              <span class="story-pick-sub">Year 2 presentation</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              class="story-pick"
+              aria-pressed="false"
+              aria-controls="story-viewer-panel"
+              data-story-src="assets/stories/the-lost-dog.pdf"
+              data-story-label="The Lost Dog"
+            >
+              <span class="story-pick-title">The Lost Dog</span>
+              <span class="story-pick-sub">Story</span>
+            </button>
+          </li>
+        </ul>
+        <section id="story-viewer-panel" class="story-viewer" hidden aria-labelledby="story-viewer-title">
+          <p class="story-viewer-label">Showing</p>
+          <h2 id="story-viewer-title" class="story-heading">Story title</h2>
+          <div class="story-frame-wrap">
+            <iframe
+              id="story-iframe"
+              class="story-iframe"
+              title="Story viewer"
+              src="about:blank"
+              loading="lazy"
+            ></iframe>
+          </div>
+          <p class="story-fallback">
+            If this doesn’t show in your browser,
+            <a id="story-pdf-fallback-link" href="assets/stories/year-1.pdf">open the PDF here</a> (same tab).
+          </p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 — Built as a simple static page. Swap the image URL and copy to make it yours.</p>
+  </footer>
+  <script src="theme.js"></script>
+  <script src="clocks.js"></script>
+  <script>
+    (function () {
+      var viewerPanel = document.getElementById("story-viewer-panel");
+      var iframe = document.getElementById("story-iframe");
+      var viewerTitle = document.getElementById("story-viewer-title");
+      var fallbackA = document.getElementById("story-pdf-fallback-link");
+      var picks = document.querySelectorAll(".story-pick");
+      if (
+        !viewerPanel ||
+        !iframe ||
+        !viewerTitle ||
+        !fallbackA ||
+        !picks.length
+      ) {
+        return;
+      }
+
+      var reduceMotion =
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      picks.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var src = btn.getAttribute("data-story-src") || "";
+          var raw = btn.getAttribute("data-story-label");
+          var label = raw && raw.trim() ? raw.trim() : "Story";
+
+          iframe.src = src;
+          iframe.title = label + " (PDF)";
+          viewerTitle.textContent = label;
+          fallbackA.href = src;
+
+          picks.forEach(function (b) {
+            var sel = b === btn;
+            b.classList.toggle("is-active", sel);
+            b.setAttribute("aria-pressed", sel ? "true" : "false");
+          });
+
+          viewerPanel.hidden = false;
+
+          viewerPanel.scrollIntoView({
+            behavior: reduceMotion ? "auto" : "smooth",
+            block: "nearest",
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

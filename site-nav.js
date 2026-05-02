@@ -5,6 +5,7 @@
     { id: "calculate", href: "calculate.html", label: "Calculator" },
     { id: "paint", href: "paint.html", label: "Paint" },
     { id: "coloring", href: "coloring.html", label: "Coloring" },
+    { id: "stories", href: "stories.html", label: "Stories" },
     { id: "about", href: "about.html", label: "About Me" },
   ];
 
@@ -33,12 +34,6 @@
     );
   }).join("");
 
-  /* Home stays in the overflow menu on every page; hide the extra desktop Home link only on index. */
-  var desktopHome =
-    current === "index"
-      ? ""
-      : '<li><a href="index.html">Home</a></li>';
-
   mount.outerHTML =
     '<header class="nav">' +
     '<div class="nav-brand">' +
@@ -53,7 +48,6 @@
     '<a class="logo" href="index.html">Abeeha <span>Fatima</span></a>' +
     "</div>" +
     '<nav class="nav-actions" aria-label="Site menu">' +
-    (desktopHome ? '<ul class="nav-links">' + desktopHome + "</ul>" : "") +
     '<button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle light or dark theme" title="Theme">' +
     SUN_ICON +
     MOON_ICON +
