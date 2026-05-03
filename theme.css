@@ -300,8 +300,20 @@ html[data-theme="light"] .theme-toggle .icon-moon {
 }
 
 @media (max-width: 768px) {
+  /* Keep burger + logo + theme on one row on phones (don't wrap theme to next line). */
+  .nav {
+    flex-wrap: nowrap;
+    column-gap: 0.35rem;
+  }
+
+  .nav-brand {
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-wrap: nowrap;
+  }
+
   .nav-actions {
-    flex: 1 1 100%;
+    flex: 0 0 auto;
     justify-content: flex-end;
   }
 
@@ -311,11 +323,27 @@ html[data-theme="light"] .theme-toggle .icon-moon {
 
   .logo {
     font-size: 1.1rem;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nav-overflow-btn {
+    width: 2.35rem;
+    height: 2.35rem;
+    flex-shrink: 0;
   }
 
   .nav-links a {
     font-size: 0.85rem;
     padding: 0.45rem 0.75rem;
+  }
+
+  .theme-toggle {
+    width: 2.35rem;
+    height: 2.35rem;
+    flex-shrink: 0;
   }
 }
 

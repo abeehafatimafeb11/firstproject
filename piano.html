@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en" data-nav-current="piano">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Piano — Abeeha Fatima</title>
+  <meta name="description" content="Play a simple piano in the browser — Abeeha Fatima, abeehafatima.me." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://abeehafatima.me/piano.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://abeehafatima.me/piano.html" />
+  <meta property="og:title" content="Piano — Abeeha Fatima" />
+  <meta property="og:description" content="Browser piano — Abeeha Fatima personal site." />
+  <meta property="og:site_name" content="Abeeha Fatima" />
+  <script>
+    (function () {
+      var k = "abeeha-theme";
+      var t = null;
+      try {
+        t = localStorage.getItem(k);
+      } catch (e) {}
+      if (t !== "light" && t !== "dark") {
+        t = "dark";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+  <link rel="stylesheet" href="theme.css" />
+  <link rel="stylesheet" href="clocks.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .piano-page {
+      padding: clamp(1.25rem, 4vw, 2rem);
+      min-height: calc(100vh - var(--nav-h));
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg-elevated) 45%, var(--bg) 100%);
+    }
+
+    .piano-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .piano-page h1 {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(1.5rem, 3.2vw, 2rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+
+    .piano-intro {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.25rem;
+      max-width: 44rem;
+    }
+
+    .piano-intro kbd {
+      display: inline-block;
+      padding: 0.12em 0.45em;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--key-bg);
+      font-size: 0.82em;
+      font-family: inherit;
+      color: var(--text);
+      margin: 0 0.05em;
+      white-space: nowrap;
+    }
+
+    .piano-board-wrap:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+      border-radius: calc(var(--radius) + 2px);
+    }
+
+    .piano-board-wrap {
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 0.5rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .piano-board {
+      position: relative;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      user-select: none;
+      touch-action: manipulation;
+      min-width: min(100%, 880px);
+      height: 200px;
+      margin: 0 auto;
+      border-radius: var(--radius);
+      padding: 0.5rem 0.65rem 0.65rem;
+      background: linear-gradient(160deg, #2a3544 0%, #1e2630 55%, #141a22 100%);
+      border: 1px solid var(--border);
+      box-shadow:
+        var(--frame-outer-shadow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    [data-theme="light"] .piano-board {
+      background: linear-gradient(160deg, #dce4ee 0%, #c5cdd9 55%, #aeb6c4 100%);
+    }
+
+    .white-keys {
+      display: flex;
+      flex-direction: row;
+      flex: 1;
+      height: 100%;
+      gap: 2px;
+    }
+
+    .key-white {
+      flex: 1 1 0;
+      min-width: 32px;
+      height: 100%;
+      border: none;
+      border-radius: 0 0 8px 8px;
+      background: linear-gradient(180deg, #fefefe 0%, #e8eaef 45%, #d5d8e0 100%);
+      box-shadow:
+        0 4px 0 #9aa0ad,
+        inset 0 -2px 4px rgba(0, 0, 0, 0.08);
+      cursor: pointer;
+      position: relative;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding-bottom: 0.5rem;
+      font-family: inherit;
+      transition:
+        transform 0.045s ease,
+        box-shadow 0.045s ease;
+    }
+
+    .key-white span {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      color: #64748b;
+    }
+
+    .key-white:active,
+    .key-white.is-down {
+      transform: translateY(3px);
+      box-shadow:
+        0 1px 0 #9aa0ad,
+        inset 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .key-white:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      z-index: 2;
+    }
+
+    .black-keys {
+      position: absolute;
+      left: 0.65rem;
+      right: 0.65rem;
+      top: 0.5rem;
+      height: 58%;
+      pointer-events: none;
+    }
+
+    .key-black {
+      position: absolute;
+      width: 5.25%;
+      min-width: 20px;
+      max-width: 36px;
+      height: 100%;
+      left: 0;
+      transform: translateX(-50%);
+      border: none;
+      border-radius: 0 0 5px 5px;
+      background: linear-gradient(180deg, #1e222a 0%, #090b0f 100%);
+      box-shadow:
+        0 3px 0 #000,
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      pointer-events: auto;
+      z-index: 3;
+      transition:
+        transform 0.045s ease,
+        box-shadow 0.045s ease;
+    }
+
+    .key-black:active,
+    .key-black.is-down {
+      transform: translateX(-50%) translateY(3px);
+      box-shadow:
+        0 1px 0 #000,
+        inset 0 1px 3px rgba(0, 0, 0, 0.45);
+    }
+
+    .key-black:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+
+    .piano-meta {
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .piano-tunes {
+      margin-bottom: 1.25rem;
+      padding: 1rem 1.15rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--key-bg);
+      box-shadow:
+        var(--frame-outer-shadow),
+        inset 0 1px 0 var(--inset-highlight);
+    }
+
+    .piano-tunes-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.65rem 1rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .piano-tunes-head label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .piano-tunes-select {
+      flex: 1 1 200px;
+      min-width: 12rem;
+      font: inherit;
+      font-size: 0.95rem;
+      padding: 0.5rem 0.65rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .piano-tunes-select:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .piano-tunes-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .piano-tunes-btn {
+      font: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      background: var(--key-muted);
+      color: var(--text);
+      transition:
+        background 0.15s ease,
+        box-shadow 0.15s ease;
+    }
+
+    .piano-tunes-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .piano-tunes-btn:hover {
+      background: var(--nav-link-hover-bg);
+    }
+
+    .piano-tunes-btn.play-primary {
+      background: linear-gradient(135deg, var(--accent), #818cf8);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 2px 12px var(--accent-soft);
+    }
+
+    .piano-tunes-btn.play-primary:hover {
+      filter: brightness(1.06);
+    }
+
+    .piano-tunes-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .piano-tunes-now {
+      padding: 0.85rem 1rem;
+      border-radius: calc(var(--radius) - 2px);
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      min-height: 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+
+    .piano-tunes-now[hidden] {
+      display: none !important;
+    }
+
+    .tunes-playing-title {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+
+    .tunes-playing-lyric {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.35;
+      min-height: 1.4em;
+    }
+
+    #piano-tunes-panel-idle {
+      padding: 0.65rem 0;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    #piano-tunes-panel-idle[hidden] {
+      display: none;
+    }
+
+    body.piano-autoplay-prevent-pointer .piano-board {
+      opacity: 0.92;
+    }
+
+    body.piano-autoplay-prevent-pointer .key-white:not(.autoplay-lit),
+    body.piano-autoplay-prevent-pointer .key-black:not(.autoplay-lit) {
+      pointer-events: none;
+    }
+
+    .key-white.autoplay-lit,
+    .key-black.autoplay-lit {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+
+    .key-black.autoplay-lit {
+      outline-offset: 0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1.25rem 2.5rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div id="site-nav-root"></div>
+  <script src="site-nav.js"></script>
+
+  <main class="piano-page">
+    <div class="piano-inner">
+      <p class="section-label">Music</p>
+      <h1 id="piano-title">Piano</h1>
+      <p class="piano-intro">
+        Click or tap the keys below. Keyboard (qwerty · US layout · lower octave):
+        <kbd>A&nbsp;W&nbsp;S&nbsp;E&nbsp;D&nbsp;F&nbsp;R&nbsp;G&nbsp;T&nbsp;H&nbsp;Y&nbsp;J</kbd>.
+        Higher octave whites:
+        <kbd>Z&nbsp;X&nbsp;C&nbsp;V&nbsp;B&nbsp;N&nbsp;M</kbd>.
+        Sharps on that octave:
+        <kbd>3</kbd>&nbsp;(C<sub>5</sub>#)
+        <kbd>I</kbd>&nbsp;(D<sub>5</sub>#)
+        <kbd>O</kbd>&nbsp;(F<sub>5</sub>#)
+        <kbd>P</kbd>&nbsp;(G<sub>5</sub>#)
+        <kbd>[</kbd>&nbsp;(A<sub>5</sub>#).
+      </p>
+      <section class="piano-tunes" aria-labelledby="piano-tunes-heading">
+        <h2 id="piano-tunes-heading" class="visually-hidden">Play a preset tune</h2>
+        <div class="piano-tunes-head">
+          <label for="piano-tune-select">Tune</label>
+          <select id="piano-tune-select" class="piano-tunes-select"></select>
+          <div class="piano-tunes-controls">
+            <button type="button" class="piano-tunes-btn play-primary" id="piano-tune-play">
+              Play tune
+            </button>
+            <button type="button" class="piano-tunes-btn" id="piano-tune-stop" disabled>
+              Stop
+            </button>
+          </div>
+        </div>
+        <p id="piano-tunes-panel-idle">
+          Pick a tune and tap Play — the title and words follow the notes on the piano.
+        </p>
+        <div class="piano-tunes-now" id="piano-tunes-now-panel" hidden>
+          <span class="tunes-playing-title" id="piano-tune-now-title"></span>
+          <p class="tunes-playing-lyric" id="piano-tune-now-lyric" aria-live="polite"></p>
+          <span class="visually-hidden" id="piano-tune-now-status" aria-live="polite"></span>
+        </div>
+      </section>
+      <div class="piano-board-wrap" tabindex="0" aria-label="Piano keyboard. Use mouse, touch, or computer keys after clicking here.">
+        <div class="piano-board" id="piano-board" aria-describedby="piano-title">
+          <div class="white-keys" id="white-keys"></div>
+          <div class="black-keys" id="black-keys"></div>
+        </div>
+      </div>
+      <p class="piano-meta">
+        Two octaves C<sub>4</sub>–B<sub>5</sub>. Sound uses synthesized tones · works offline.
+      </p>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 — Built as a simple static page.</p>
+  </footer>
+  <script src="theme.js"></script>
+  <script src="clocks.js"></script>
+  <script>
+    (function () {
+      function midiName(midi) {
+        var names = [
+          "C",
+          "C sharp",
+          "D",
+          "D sharp",
+          "E",
+          "F",
+          "F sharp",
+          "G",
+          "G sharp",
+          "A",
+          "A sharp",
+          "B",
+        ];
+        var o = Math.floor(midi / 12) - 1;
+        return names[midi % 12] + ", octave " + o;
+      }
+
+      var WS = ["C", "D", "E", "F", "G", "A", "B"];
+      var whiteOffsets = [0, 2, 4, 5, 7, 9, 11];
+      var WHITES = [];
+      var chromFromC = [1, 3, 6, 8, 10];
+      var BLACK_AFTER_WHITE = [0, 1, 3, 4, 5];
+      var o;
+      var i;
+
+      for (o = 0; o < 2; o++) {
+        for (i = 0; i < 7; i++) {
+          WHITES.push({
+            midi: 60 + o * 12 + whiteOffsets[i],
+            label: WS[i],
+          });
+        }
+      }
+
+      var BLACKS = [];
+      for (o = 0; o < 2; o++) {
+        for (i = 0; i < 5; i++) {
+          BLACKS.push({
+            midi: 60 + o * 12 + chromFromC[i],
+            afterWhiteIndex: o * 7 + BLACK_AFTER_WHITE[i],
+          });
+        }
+      }
+
+      function blackLeftPercent(bl, whiteCount) {
+        var slot = 100 / whiteCount;
+        return slot * bl.afterWhiteIndex + slot * 0.72;
+      }
+
+      var whiteWrap = document.getElementById("white-keys");
+      var blackWrap = document.getElementById("black-keys");
+      var board = document.getElementById("piano-board");
+      var nW = WHITES.length;
+      var blNames = ["C sharp", "D sharp", "F sharp", "G sharp", "A sharp"];
+
+      WHITES.forEach(function (note) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "key-white";
+        b.setAttribute("data-midi", String(note.midi));
+        b.setAttribute("aria-label", midiName(note.midi));
+        var sp = document.createElement("span");
+        sp.textContent = note.label;
+        b.appendChild(sp);
+        whiteWrap.appendChild(b);
+      });
+
+      BLACKS.forEach(function (bk, idx) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "key-black";
+        b.setAttribute("data-midi", String(bk.midi));
+        b.style.left = blackLeftPercent(bk, nW) + "%";
+        b.setAttribute("aria-label", midiName(bk.midi));
+        b.setAttribute("title", blNames[idx % 5]);
+        blackWrap.appendChild(b);
+      });
+
+      var AudioCtx = window.AudioContext || window.webkitAudioContext;
+      var ctx = null;
+
+      function getCtx() {
+        if (!ctx && AudioCtx) {
+          ctx = new AudioCtx();
+        }
+        return ctx;
+      }
+
+      function midiToFreq(midi) {
+        return 440 * Math.pow(2, (midi - 69) / 12);
+      }
+
+      var ringing = {};
+
+      function startNote(midi) {
+        var c = getCtx();
+        if (!c) return;
+        stopNoteImmediate(midi);
+        try {
+          c.resume();
+        } catch (e) {}
+
+        var f = midiToFreq(midi);
+        var t0 = c.currentTime;
+
+        var osc = c.createOscillator();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(f, t0);
+
+        var osc2 = c.createOscillator();
+        osc2.type = "sine";
+        osc2.frequency.setValueAtTime(f * 2, t0);
+
+        var mix = c.createGain();
+        mix.gain.setValueAtTime(0.1, t0);
+
+        var env = c.createGain();
+        env.gain.setValueAtTime(0.0001, t0);
+        env.gain.exponentialRampToValueAtTime(0.32, t0 + 0.015);
+        env.gain.exponentialRampToValueAtTime(0.07, t0 + 0.16);
+        env.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.82);
+
+        osc.connect(mix);
+        osc2.connect(mix);
+        mix.connect(env);
+        env.connect(c.destination);
+
+        osc.start(t0);
+        osc2.start(t0);
+        osc.stop(t0 + 0.88);
+        osc2.stop(t0 + 0.88);
+
+        ringing[midi] = { osc: osc, osc2: osc2, gain: env, end: t0 + 0.88 };
+      }
+
+      function stopNoteImmediate(midi) {
+        var n = ringing[midi];
+        if (!n || !ctx) return;
+        var t = ctx.currentTime;
+        try {
+          n.gain.gain.cancelScheduledValues(t);
+          n.gain.gain.setValueAtTime(Math.max(n.gain.gain.value, 0.0001), t);
+          n.gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+        } catch (e) {}
+        delete ringing[midi];
+      }
+
+      function setVisualDown(midi, down) {
+        board.querySelectorAll('[data-midi="' + midi + '"]').forEach(function (node) {
+          node.classList.toggle("is-down", down);
+        });
+      }
+
+      function clearAutoplayHighlights() {
+        board.querySelectorAll(".autoplay-lit").forEach(function (node) {
+          node.classList.remove("autoplay-lit");
+        });
+      }
+
+      function setAutoplayLit(midi, on) {
+        if (midi === null || isNaN(midi)) return;
+        board.querySelectorAll('[data-midi="' + midi + '"]').forEach(function (node) {
+          node.classList.toggle("autoplay-lit", !!on);
+        });
+      }
+
+      var TUNES = [
+        {
+          title: "Happy Birthday",
+          steps: [
+            { m: 67, d: 280, t: "Happy" },
+            { m: 67, d: 150, t: "birth-" },
+            { m: 69, d: 320, t: "day to" },
+            { m: 67, d: 350, t: "you" },
+            { m: 72, d: 320, t: "★" },
+            { m: 71, d: 600, t: "(blow candles!)" },
+            { m: 0, d: 350, t: "" },
+            { m: 67, d: 280, t: "Happy" },
+            { m: 67, d: 150, t: "birth-" },
+            { m: 69, d: 320, t: "day to" },
+            { m: 67, d: 350, t: "you" },
+            { m: 74, d: 320, t: "★" },
+            { m: 72, d: 650, t: "(cheer)" },
+            { m: 0, d: 350, t: "" },
+            { m: 67, d: 280, t: "Happy" },
+            { m: 67, d: 150, t: "birth-" },
+            { m: 79, d: 320, t: "day dear" },
+            { m: 76, d: 260, t: "friend…" },
+            { m: 72, d: 260, t: "" },
+            { m: 71, d: 900, t: "(smile)" },
+            { m: 0, d: 300, t: "" },
+            { m: 78, d: 240, t: "Happy" },
+            { m: 78, d: 150, t: "birth-" },
+            { m: 76, d: 280, t: "day to" },
+            { m: 72, d: 280, t: "you" },
+            { m: 74, d: 280, t: "★" },
+            { m: 72, d: 900, t: "The end!" },
+          ],
+        },
+        {
+          title: "Twinkle, Twinkle, Little Star",
+          steps: [
+            { m: 60, d: 400, t: "Twin-" },
+            { m: 60, d: 400, t: "kle," },
+            { m: 67, d: 400, t: "twin-" },
+            { m: 67, d: 400, t: "kle," },
+            { m: 69, d: 400, t: "lit-" },
+            { m: 69, d: 400, t: "tle" },
+            { m: 67, d: 700, t: "star," },
+            { m: 0, d: 180, t: "" },
+            { m: 65, d: 400, t: "How I" },
+            { m: 65, d: 400, t: "won-" },
+            { m: 64, d: 400, t: "der" },
+            { m: 64, d: 400, t: "what" },
+            { m: 62, d: 400, t: "you" },
+            { m: 62, d: 400, t: "are," },
+            { m: 60, d: 850, t: "★" },
+          ],
+        },
+        {
+          title: "Mary Had a Little Lamb",
+          steps: [
+            { m: 64, d: 350, t: "Ma-" },
+            { m: 62, d: 350, t: "ry" },
+            { m: 60, d: 350, t: "had a" },
+            { m: 62, d: 350, t: "lit-" },
+            { m: 64, d: 350, t: "tle" },
+            { m: 64, d: 350, t: "lamb," },
+            { m: 64, d: 750, t: "lamb," },
+            { m: 0, d: 200, t: "" },
+            { m: 62, d: 350, t: "lit-" },
+            { m: 62, d: 350, t: "tle" },
+            { m: 62, d: 750, t: "lamb," },
+            { m: 0, d: 200, t: "" },
+            { m: 64, d: 350, t: "lit-" },
+            { m: 67, d: 350, t: "tle" },
+            { m: 67, d: 900, t: "lamb! ★" },
+          ],
+        },
+        {
+          title: "Row, Row, Row Your Boat",
+          steps: [
+            { m: 60, d: 320, t: "Row," },
+            { m: 60, d: 320, t: "row," },
+            { m: 60, d: 320, t: "row" },
+            { m: 62, d: 320, t: "your" },
+            { m: 64, d: 650, t: "boat," },
+            { m: 0, d: 200, t: "" },
+            { m: 64, d: 320, t: "Gen-" },
+            { m: 62, d: 320, t: "tly" },
+            { m: 64, d: 320, t: "down the" },
+            { m: 65, d: 320, t: "stream," },
+            { m: 67, d: 900, t: "★" },
+          ],
+        },
+        {
+          title: "Ode to Joy (opening)",
+          steps: [
+            { m: 64, d: 320, t: "Ode" },
+            { m: 64, d: 320, t: "to" },
+            { m: 65, d: 320, t: "joy," },
+            { m: 67, d: 650, t: "joy—" },
+            { m: 0, d: 150, t: "" },
+            { m: 67, d: 320, t: "joy," },
+            { m: 65, d: 320, t: "joy," },
+            { m: 64, d: 320, t: "joy," },
+            { m: 62, d: 320, t: "joy," },
+            { m: 60, d: 320, t: "joy," },
+            { m: 62, d: 320, t: "joy," },
+            { m: 64, d: 320, t: "joy," },
+            { m: 64, d: 750, t: "★" },
+          ],
+        },
+        {
+          title: "Jingle Bells (opening)",
+          steps: [
+            { m: 64, d: 280, t: "Jin-" },
+            { m: 64, d: 280, t: "gle" },
+            { m: 64, d: 650, t: "bells," },
+            { m: 0, d: 200, t: "" },
+            { m: 64, d: 280, t: "jin-" },
+            { m: 64, d: 280, t: "gle" },
+            { m: 64, d: 650, t: "bells," },
+            { m: 0, d: 200, t: "" },
+            { m: 64, d: 240, t: "Jin-" },
+            { m: 67, d: 240, t: "gle" },
+            { m: 60, d: 240, t: "all" },
+            { m: 62, d: 240, t: "the" },
+            { m: 64, d: 900, t: "way! ★" },
+          ],
+        },
+        {
+          title: "Old MacDonald Had a Farm",
+          steps: [
+            { m: 60, d: 280, t: "Old" },
+            { m: 60, d: 280, t: "Mac-" },
+            { m: 60, d: 350, t: "Don-" },
+            { m: 67, d: 350, t: "ald" },
+            { m: 69, d: 350, t: "had a" },
+            { m: 69, d: 350, t: "farm," },
+            { m: 67, d: 900, t: "E-I-E-I-O! ★" },
+            { m: 0, d: 250, t: "" },
+            { m: 64, d: 350, t: "And" },
+            { m: 64, d: 350, t: "on that" },
+            { m: 62, d: 350, t: "farm" },
+            { m: 62, d: 350, t: "he had" },
+            { m: 60, d: 900, t: "a cow… ★" },
+          ],
+        },
+        {
+          title: "UAE national anthem · Īshy bilādī",
+          steps: [
+            { m: 71, d: 340, t: "Īshī…" },
+            { m: 71, d: 240, t: "bi-" },
+            { m: 73, d: 320, t: "lā-" },
+            { m: 74, d: 420, t: "dī…" },
+            { m: 76, d: 360, t: "bilā-" },
+            { m: 74, d: 300, t: "-dī" },
+            { m: 73, d: 300, t: "em-" },
+            { m: 74, d: 300, t: "baa-" },
+            { m: 73, d: 380, t: "rat…" },
+            { m: 71, d: 320, t: "mas-" },
+            { m: 71, d: 520, t: "raḥa" },
+            { m: 0, d: 260, t: "" },
+            { m: 76, d: 360, t: "Īshī" },
+            { m: 78, d: 320, t: "bilā-" },
+            { m: 76, d: 300, t: "-dī" },
+            { m: 74, d: 320, t: "Ar-" },
+            { m: 73, d: 320, t: "a-" },
+            { m: 71, d: 320, t: "biy-" },
+            { m: 73, d: 440, t: "ya…" },
+            { m: 0, d: 220, t: "" },
+            { m: 74, d: 360, t: "Long" },
+            { m: 74, d: 280, t: "live" },
+            { m: 76, d: 380, t: "my" },
+            { m: 78, d: 420, t: "homeland—" },
+            { m: 78, d: 360, t: "long" },
+            { m: 76, d: 320, t: "live" },
+            { m: 76, d: 400, t: "U.A.E.—" },
+            { m: 74, d: 480, t: "pride ★" },
+            { m: 0, d: 300, t: "" },
+            { m: 79, d: 400, t: "Glō-" },
+            { m: 78, d: 320, t: "ry!" },
+            { m: 76, d: 340, t: "'Īshī!" },
+            { m: 74, d: 360, t: "'Īshī!" },
+            { m: 73, d: 300, t: "to" },
+            { m: 71, d: 320, t: "all" },
+            { m: 73, d: 360, t: "our" },
+            { m: 74, d: 800, t: "leaders ★" },
+          ],
+        },
+      ];
+
+      var tuneSelect = document.getElementById("piano-tune-select");
+      var tunePlay = document.getElementById("piano-tune-play");
+      var tuneStop = document.getElementById("piano-tune-stop");
+      var tuneIdle = document.getElementById("piano-tunes-panel-idle");
+      var tuneNowPanel = document.getElementById("piano-tunes-now-panel");
+      var tuneNowTitle = document.getElementById("piano-tune-now-title");
+      var tuneNowLyric = document.getElementById("piano-tune-now-lyric");
+      var tuneNowStatus = document.getElementById("piano-tune-now-status");
+
+      if (tuneSelect) {
+        TUNES.forEach(function (tune, idx) {
+          var opt = document.createElement("option");
+          opt.value = String(idx);
+          opt.textContent = tune.title;
+          tuneSelect.appendChild(opt);
+        });
+      }
+
+      var tuneTimeouts = [];
+      var tunePlaying = false;
+      var tuneGen = 0;
+
+      function stopAllRinging() {
+        var k;
+        for (k in ringing) {
+          if (Object.prototype.hasOwnProperty.call(ringing, k)) {
+            stopNoteImmediate(parseInt(k, 10));
+          }
+        }
+      }
+
+      function resetTuneUI() {
+        tunePlaying = false;
+        document.body.classList.remove("piano-autoplay-prevent-pointer");
+        tuneTimeouts.forEach(function (id) {
+          clearTimeout(id);
+        });
+        tuneTimeouts = [];
+        clearAutoplayHighlights();
+        stopAllRinging();
+        if (tunePlay) tunePlay.disabled = false;
+        if (tuneStop) tuneStop.disabled = true;
+        if (tuneIdle) tuneIdle.hidden = false;
+        if (tuneNowPanel) tuneNowPanel.hidden = true;
+        if (tuneNowLyric) tuneNowLyric.textContent = "";
+        if (tuneNowTitle) tuneNowTitle.textContent = "";
+        if (tuneNowStatus) tuneNowStatus.textContent = "";
+      }
+
+      function playSelectedTune() {
+        if (!tuneSelect || tunePlaying) return;
+        var idx = parseInt(tuneSelect.value, 10);
+        if (isNaN(idx) || !TUNES[idx]) return;
+        var tune = TUNES[idx];
+        tunePlaying = true;
+        tuneGen += 1;
+        var myGen = tuneGen;
+        document.body.classList.add("piano-autoplay-prevent-pointer");
+        if (tunePlay) tunePlay.disabled = true;
+        if (tuneStop) tuneStop.disabled = false;
+        if (tuneIdle) tuneIdle.hidden = true;
+        if (tuneNowPanel) tuneNowPanel.hidden = false;
+        if (tuneNowTitle) tuneNowTitle.textContent = "Now playing: " + tune.title;
+        if (tuneNowStatus) tuneNowStatus.textContent = "Playing " + tune.title;
+
+        var tAcc = 0;
+        var maxNoteDur = 0;
+        var si;
+        for (si = 0; si < tune.steps.length; si++) {
+          maxNoteDur = Math.max(maxNoteDur, tune.steps[si].d);
+          (function (step, startAt) {
+            var id1 = setTimeout(function () {
+              if (myGen !== tuneGen) return;
+              var text = step.t != null ? step.t : "";
+              if (tuneNowLyric) tuneNowLyric.textContent = text;
+              if (tuneNowStatus)
+                tuneNowStatus.textContent = tune.title + " — " + (text || "rest");
+
+              var midi = step.m;
+              if (midi && midi > 0) {
+                setVisualDown(midi, true);
+                setAutoplayLit(midi, true);
+                startNote(midi);
+                var id2 = setTimeout(function () {
+                  if (myGen !== tuneGen) return;
+                  setVisualDown(midi, false);
+                  setAutoplayLit(midi, false);
+                  stopNoteImmediate(midi);
+                }, Math.max(60, step.d * 0.82));
+                tuneTimeouts.push(id2);
+              }
+            }, startAt);
+            tuneTimeouts.push(id1);
+          })(tune.steps[si], tAcc);
+          tAcc += tune.steps[si].d;
+        }
+
+        var idDone = setTimeout(function () {
+          if (myGen !== tuneGen) return;
+          resetTuneUI();
+        }, tAcc + maxNoteDur + 500);
+        tuneTimeouts.push(idDone);
+      }
+
+      if (tunePlay) {
+        tunePlay.addEventListener("click", function () {
+          getCtx();
+          playSelectedTune();
+        });
+      }
+      if (tuneStop) {
+        tuneStop.addEventListener("click", function () {
+          tuneGen += 1;
+          resetTuneUI();
+        });
+      }
+
+      var pointerMidi = {};
+
+      board.addEventListener(
+        "pointerdown",
+        function (e) {
+          if (tunePlaying) return;
+          var btn = e.target.closest("[data-midi]");
+          if (!btn || !board.contains(btn)) return;
+          var midi = parseInt(btn.getAttribute("data-midi"), 10);
+          if (isNaN(midi)) return;
+          e.preventDefault();
+          btn.setPointerCapture(e.pointerId);
+          pointerMidi[e.pointerId] = midi;
+          setVisualDown(midi, true);
+          startNote(midi);
+        },
+        false
+      );
+
+      function ptrUp(pid) {
+        var midi = pointerMidi[pid];
+        delete pointerMidi[pid];
+        if (midi !== undefined && !isNaN(midi)) {
+          setVisualDown(midi, false);
+          stopNoteImmediate(midi);
+        }
+      }
+
+      board.addEventListener("pointerup", function (e) {
+        ptrUp(e.pointerId);
+      });
+      board.addEventListener("pointercancel", function (e) {
+        ptrUp(e.pointerId);
+      });
+
+      var PHYS_TO_MIDI = {
+        KeyA: 60,
+        KeyW: 61,
+        KeyS: 62,
+        KeyE: 63,
+        KeyD: 64,
+        KeyF: 65,
+        KeyR: 66,
+        KeyG: 67,
+        KeyT: 68,
+        KeyH: 69,
+        KeyY: 70,
+        KeyJ: 71,
+        KeyZ: 72,
+        Digit3: 73,
+        KeyX: 74,
+        KeyI: 75,
+        KeyC: 76,
+        KeyO: 78,
+        KeyV: 77,
+        KeyB: 79,
+        KeyP: 80,
+        KeyN: 81,
+        BracketLeft: 82,
+        KeyM: 83,
+      };
+
+      var keysHeldKb = {};
+
+      document.addEventListener(
+        "keydown",
+        function (e) {
+          if (tunePlaying) return;
+          if (
+            document.activeElement &&
+            (document.activeElement.tagName === "INPUT" ||
+              document.activeElement.tagName === "TEXTAREA" ||
+              document.activeElement.tagName === "SELECT")
+          ) {
+            return;
+          }
+          if (e.repeat || e.ctrlKey || e.altKey || e.metaKey) return;
+          var midi = PHYS_TO_MIDI[e.code];
+          if (midi === undefined || midi === null) return;
+          e.preventDefault();
+          if (keysHeldKb[e.code]) return;
+          keysHeldKb[e.code] = true;
+          setVisualDown(midi, true);
+          startNote(midi);
+        },
+        false
+      );
+
+      document.addEventListener(
+        "keyup",
+        function (e) {
+          if (!keysHeldKb[e.code]) return;
+          var midi = PHYS_TO_MIDI[e.code];
+          keysHeldKb[e.code] = false;
+          if (midi === undefined) return;
+          setVisualDown(midi, false);
+          stopNoteImmediate(midi);
+        },
+        false
+      );
+
+      window.addEventListener("blur", function () {
+        var cd;
+        for (cd in PHYS_TO_MIDI) {
+          if (
+            Object.prototype.hasOwnProperty.call(PHYS_TO_MIDI, cd) &&
+            keysHeldKb[cd]
+          ) {
+            var m = PHYS_TO_MIDI[cd];
+            keysHeldKb[cd] = false;
+            setVisualDown(m, false);
+            stopNoteImmediate(m);
+          }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

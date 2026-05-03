@@ -3,29 +3,149 @@
     return n < 10 ? "0" + n : String(n);
   }
 
-  function formatHijri(date) {
-    var opts = {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    };
+  var HIJRI_MONTHS_EN = [
+    "Muharram",
+    "Safar",
+    "Rabi' al-Awwal",
+    "Rabi' al-Thani",
+    "Jumada al-Awwal",
+    "Jumada al-Thani",
+    "Rajab",
+    "Sha'ban",
+    "Ramadan",
+    "Shawwal",
+    "Dhu al-Qa'dah",
+    "Dhu al-Hijjah",
+  ];
+
+  function toLatinDigits(s) {
+    return String(s || "")
+      .replace(/[\u0660-\u0669]/g, function (ch) {
+        return String(ch.charCodeAt(0) - 0x0660);
+      })
+      .replace(/[\u06F0-\u06F9]/g, function (ch) {
+        return String(ch.charCodeAt(0) - 0x06f0);
+      });
+  }
+
+  function parseIslamicDayField(value) {
+    var lat = toLatinDigits(value).replace(/[^\d]/g, "");
+    if (!lat) return NaN;
+    var n = parseInt(lat, 10);
+    return n >= 1 && n <= 31 ? n : NaN;
+  }
+
+  function parseIslamicMonthField(value) {
+    var lat = toLatinDigits(String(value || "").trim()).replace(/[^\d]/g, "");
+    if (!lat) return NaN;
+    var n = parseInt(lat, 10);
+    return n >= 1 && n <= 12 ? n : NaN;
+  }
+
+  function parseIslamicYearField(value) {
+    var s = String(value || "")
+      .replace(/\bce\b|\bbce\b|\bad\b|\bhijri\b|\bah\b/gi, " ")
+      .trim();
+    var lat = toLatinDigits(s);
+    var m = lat.match(/\d+/);
+    if (!m) return NaN;
+    var y = parseInt(m[0], 10);
+    return y >= 1200 && y <= 2150 ? y : NaN;
+  }
+
+  function hijriPartsForCalendar(date, cal) {
     try {
-      return (
-        new Intl.DateTimeFormat(undefined, Object.assign({ calendar: "islamic-umalqura" }, opts)).format(
-          date
-        ) + " AH"
-      );
-    } catch (e1) {
-      try {
+      var parts = new Intl.DateTimeFormat("en", {
+        calendar: cal,
+        weekday: "short",
+        day: "numeric",
+        month: "numeric",
+        year: "numeric",
+      }).formatToParts(date);
+      var map = {};
+      var j;
+      for (j = 0; j < parts.length; j++) {
+        if (parts[j].type !== "literal") {
+          map[parts[j].type] = parts[j].value;
+        }
+      }
+      if (!map.weekday) return null;
+      return {
+        weekday: map.weekday,
+        day: parseIslamicDayField(map.day),
+        monthNum: parseIslamicMonthField(map.month),
+        year: parseIslamicYearField(map.year),
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function hijriPartsForLocale(date, locale) {
+    try {
+      var parts = new Intl.DateTimeFormat(locale, {
+        weekday: "short",
+        day: "numeric",
+        month: "numeric",
+        year: "numeric",
+      }).formatToParts(date);
+      var map = {};
+      var j;
+      for (j = 0; j < parts.length; j++) {
+        if (parts[j].type !== "literal") {
+          map[parts[j].type] = parts[j].value;
+        }
+      }
+      if (!map.weekday) return null;
+      return {
+        weekday: map.weekday,
+        day: parseIslamicDayField(map.day),
+        monthNum: parseIslamicMonthField(map.month),
+        year: parseIslamicYearField(map.year),
+      };
+    } catch (e3) {
+      return null;
+    }
+  }
+
+  function formatHijri(date) {
+    var calendars = ["islamic-umalqura", "islamic", "islamic-civil", "islamic-tbla"];
+    var locales = ["en-u-ca-islamic-umalqura", "en-u-ca-islamic"];
+
+    function tryHp(hp) {
+      if (
+        hp &&
+        hp.weekday &&
+        !isNaN(hp.day) &&
+        hp.monthNum >= 1 &&
+        hp.monthNum <= 12 &&
+        !isNaN(hp.year) &&
+        HIJRI_MONTHS_EN[hp.monthNum - 1]
+      ) {
         return (
-          new Intl.DateTimeFormat(undefined, Object.assign({ calendar: "islamic" }, opts)).format(date) +
+          hp.weekday +
+          ", " +
+          hp.day +
+          " " +
+          HIJRI_MONTHS_EN[hp.monthNum - 1] +
+          " " +
+          hp.year +
           " AH"
         );
-      } catch (e2) {
-        return "";
       }
+      return "";
     }
+
+    var i;
+    for (i = 0; i < calendars.length; i++) {
+      var out = tryHp(hijriPartsForCalendar(date, calendars[i]));
+      if (out) return out;
+    }
+    for (i = 0; i < locales.length; i++) {
+      var outL = tryHp(hijriPartsForLocale(date, locales[i]));
+      if (outL) return outL;
+    }
+    return "";
   }
 
   function insertBar() {
