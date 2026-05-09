@@ -24,6 +24,8 @@
 
   var cache = {};
   var activeId = LOCATIONS[0].id;
+  var latestBannerData = null;
+  var bannerTick = null;
 
   function $(sel) {
     return document.querySelector(sel);
@@ -46,6 +48,124 @@
   function setStatus(msg) {
     var el = $("#prayer-status");
     if (el) el.textContent = msg || "";
+  }
+
+  function stopBannerTimer() {
+    if (bannerTick !== null) {
+      clearInterval(bannerTick);
+      bannerTick = null;
+    }
+  }
+
+  function clearBannerUi() {
+    stopBannerTimer();
+    latestBannerData = null;
+    var box = $("#prayer-now-banner");
+    if (box) box.hidden = true;
+    var m = $("#prayer-now-main");
+    var s = $("#prayer-now-sub");
+    if (m) m.textContent = "";
+    if (s) s.textContent = "";
+  }
+
+  function parseTimeToMinutes(str) {
+    if (!str || typeof str !== "string") return NaN;
+    var m = String(str).trim().match(/^(\d{1,2}):(\d{2})/);
+    if (!m) return NaN;
+    var h = parseInt(m[1], 10);
+    var min = parseInt(m[2], 10);
+    if (h > 23 || min > 59) return NaN;
+    return h * 60 + min;
+  }
+
+  function getNowMinutesInTimezone(timeZone) {
+    try {
+      var d = new Date();
+      var f = new Intl.DateTimeFormat("en-GB", {
+        timeZone: timeZone,
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+      });
+      var parts = f.formatToParts(d);
+      var h = 0;
+      var m = 0;
+      var i;
+      for (i = 0; i < parts.length; i++) {
+        if (parts[i].type === "hour") h = parseInt(parts[i].value, 10);
+        if (parts[i].type === "minute") m = parseInt(parts[i].value, 10);
+      }
+      return h * 60 + m;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function describeCurrentPeriod(timings, timeZone) {
+    var now = getNowMinutesInTimezone(timeZone);
+    if (now === null) return null;
+    var fajr = parseTimeToMinutes(timings.Fajr);
+    var sunrise = parseTimeToMinutes(timings.Sunrise);
+    var dhuhr = parseTimeToMinutes(timings.Dhuhr);
+    var asr = parseTimeToMinutes(timings.Asr);
+    var maghrib = parseTimeToMinutes(timings.Maghrib);
+    var isha = parseTimeToMinutes(timings.Isha);
+    if (
+      isNaN(fajr) ||
+      isNaN(sunrise) ||
+      isNaN(dhuhr) ||
+      isNaN(asr) ||
+      isNaN(maghrib) ||
+      isNaN(isha)
+    ) {
+      return null;
+    }
+
+    if (now < fajr) {
+      return { main: "Before Fajr", sub: "Fajr at " + timings.Fajr };
+    }
+    if (now < sunrise) {
+      return { main: "Fajr", sub: "Until sunrise · " + timings.Sunrise };
+    }
+    if (now < dhuhr) {
+      return { main: "Before Dhuhr", sub: "Dhuhr at " + timings.Dhuhr };
+    }
+    if (now < asr) {
+      return { main: "Dhuhr", sub: "Until Asr · " + timings.Asr };
+    }
+    if (now < maghrib) {
+      return { main: "Asr", sub: "Until Maghrib · " + timings.Maghrib };
+    }
+    if (now < isha) {
+      return { main: "Maghrib", sub: "Until Isha · " + timings.Isha };
+    }
+    return { main: "Isha", sub: "Next Fajr at " + timings.Fajr };
+  }
+
+  function refreshNowBanner() {
+    var box = $("#prayer-now-banner");
+    if (!box || !latestBannerData) return;
+    if (latestBannerData.locId !== activeId) return;
+    var tz = latestBannerData.timezone;
+    if (!tz) {
+      box.hidden = true;
+      return;
+    }
+    var phase = describeCurrentPeriod(latestBannerData.timings, tz);
+    if (!phase) {
+      box.hidden = true;
+      return;
+    }
+    box.hidden = false;
+    var m = $("#prayer-now-main");
+    var s = $("#prayer-now-sub");
+    if (m) m.textContent = phase.main;
+    if (s) s.textContent = phase.sub || "";
+  }
+
+  function attachBannerTicker() {
+    stopBannerTimer();
+    bannerTick = window.setInterval(refreshNowBanner, 30000);
   }
 
   function renderTable(timings, meta) {
@@ -75,6 +195,7 @@
   }
 
   function showError(message) {
+    clearBannerUi();
     var panel = $("#prayer-panel");
     if (panel) {
       panel.innerHTML =
@@ -114,6 +235,13 @@
     }
     updateDateLine(data);
     panel.innerHTML = renderTable(data.timings, data.meta);
+    latestBannerData = {
+      locId: loc.id,
+      timings: data.timings,
+      timezone: data.meta && data.meta.timezone,
+    };
+    refreshNowBanner();
+    attachBannerTicker();
     setStatus("");
   }
 
@@ -160,6 +288,8 @@
     }
     if (!loc) return;
 
+    clearBannerUi();
+
     var panel = $("#prayer-panel");
     if (panel && !cache[id]) {
       panel.innerHTML = '<p class="prayer-loading">Loading times for ' + esc(loc.label) + "…</p>";
@@ -200,6 +330,11 @@
     wrap.innerHTML =
       '<div class="prayer-tablist" role="tablist" aria-label="Country">' +
       tabHtml +
+      "</div>" +
+      '<div id="prayer-now-banner" class="prayer-now-banner" role="status" aria-live="polite" hidden>' +
+      '<p class="prayer-now-tag">Current period</p>' +
+      '<p class="prayer-now-main" id="prayer-now-main"></p>' +
+      '<p class="prayer-now-sub" id="prayer-now-sub"></p>' +
       "</div>" +
       '<div id="prayer-date-line" class="prayer-date-line"></div>' +
       '<div id="prayer-panel" class="prayer-panel" role="tabpanel"></div>' +
