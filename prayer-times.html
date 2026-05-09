@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en" data-nav-current="prayer-times">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prayer timings — Abeeha Fatima</title>
+  <meta name="description" content="Today's prayer timings for UAE, Pakistan, Saudi Arabia, and Oman." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://abeehafatima.me/prayer-times.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://abeehafatima.me/prayer-times.html" />
+  <meta property="og:title" content="Prayer timings — Abeeha Fatima" />
+  <meta property="og:description" content="Today's prayer timings for UAE, Pakistan, Saudi Arabia, and Oman." />
+  <meta property="og:site_name" content="Abeeha Fatima" />
+  <script>
+    (function () {
+      var k = "abeeha-theme";
+      var t = null;
+      try {
+        t = localStorage.getItem(k);
+      } catch (e) {}
+      if (t !== "light" && t !== "dark") {
+        t = "dark";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+  <link rel="stylesheet" href="theme.css" />
+  <link rel="stylesheet" href="clocks.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .prayer-page {
+      padding: clamp(2rem, 6vw, 4rem) clamp(1.25rem, 4vw, 3rem);
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg-elevated) 45%, var(--bg) 100%);
+      min-height: calc(100vh - var(--nav-h) - 80px);
+    }
+
+    .prayer-inner {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .prayer-page h1 {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+
+    .prayer-intro {
+      color: var(--text-muted);
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .prayer-tablist {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .prayer-tab {
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.55rem 1rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--key-bg);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .prayer-tab:hover {
+      color: var(--text);
+      background: var(--nav-link-hover-bg);
+      border-color: var(--border);
+    }
+
+    .prayer-tab:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .prayer-tab.is-active {
+      color: var(--primary-pill-fg);
+      background: linear-gradient(135deg, var(--accent), #818cf8);
+      border-color: transparent;
+      box-shadow: 0 4px 18px var(--accent-soft);
+    }
+
+    .prayer-date-line {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .prayer-date-part {
+      display: block;
+    }
+
+    .prayer-panel {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface-card-strong);
+      box-shadow: var(--shadow-elevated);
+      padding: 1rem 1.15rem 1.15rem;
+      min-height: 8rem;
+    }
+
+    .prayer-loading {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .prayer-error {
+      color: #f87171;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .prayer-hint {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .prayer-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .prayer-table th {
+      text-align: left;
+      font-weight: 600;
+      padding: 0.5rem 0.75rem 0.5rem 0;
+      color: var(--text);
+      width: 42%;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .prayer-table td {
+      text-align: right;
+      padding: 0.5rem 0 0.5rem 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .prayer-table tr:last-child th,
+    .prayer-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .prayer-meta {
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .prayer-meta-line {
+      display: block;
+    }
+
+    .prayer-footnote {
+      margin-top: 1.75rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1.25rem 2.5rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div id="site-nav-root"></div>
+  <script src="site-nav.js"></script>
+
+  <main>
+    <section class="prayer-page" aria-labelledby="prayer-title">
+      <div class="prayer-inner">
+        <p class="section-label">Today</p>
+        <h1 id="prayer-title">Prayer timings</h1>
+        <p class="prayer-intro">
+          Select a country to see Fajr through Isha for the reference city. Times update from
+          <a href="https://aladhan.com/prayer-times-api" rel="noopener noreferrer" style="color: var(--accent);">AlAdhan</a>.
+        </p>
+        <div id="prayer-tabs-root"></div>
+        <p class="prayer-footnote">
+          Reference cities: Dubai (UAE), Karachi, Riyadh, Muscat, Doha, Kuwait City, Cairo, Kuala Lumpur,
+          Istanbul, Dhaka, Casablanca. Local mosques may use different methods; confirm with your community if
+          needed.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer>Abeeha Fatima — abeehafatima.me</footer>
+
+  <script src="theme.js"></script>
+  <script src="clocks.js"></script>
+  <script src="prayer-times.js"></script>
+</body>
+</html>

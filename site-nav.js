@@ -7,6 +7,7 @@
     { id: "coloring", href: "coloring.html", label: "Coloring" },
     { id: "piano", href: "piano.html", label: "Piano" },
     { id: "stories", href: "stories.html", label: "Stories" },
+    { id: "prayer-times", href: "prayer-times.html", label: "Prayer timings" },
     { id: "about", href: "about.html", label: "About Me" },
   ];
 
